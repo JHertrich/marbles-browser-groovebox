@@ -24,7 +24,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 
 export function LaneDSection() {
   const { state, dispatch } = useApp()
-  const { t, grain, granEnabled } = state.laneD
+  const { t, grain, granEnabled, granRecording } = state.laneD
   const granSends = state.laneC.sends.gran
 
   const granSubscribe = useCallback(
@@ -89,6 +89,11 @@ export function LaneDSection() {
             <span className="section-title" style={{ marginBottom: 0, opacity: granEnabled ? 1 : 0.4 }}>
               Granulator II — grain engine
             </span>
+            <button
+              className={`btn-rec${granRecording ? ' btn-rec-on' : ''}`}
+              onClick={() => dispatch({ type: 'TOGGLE_GRAN_RECORDING' })}
+              title={granRecording ? 'Freeze buffer' : 'Resume recording'}
+            >{granRecording ? '● REC' : '■ FRZ'}</button>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_GRAN' })}>⚄</button>
           </div>
 

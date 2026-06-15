@@ -25,6 +25,7 @@ class GranularProcessor extends AudioWorkletProcessor {
       { name: 'width',    defaultValue: 0.5, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
       { name: 'level',    defaultValue: 0.7, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
       { name: 'gate',     defaultValue: 0,   minValue: 0, maxValue: 1, automationRate: 'a-rate' },
+      { name: 'record',   defaultValue: 1,   minValue: 0, maxValue: 1, automationRate: 'k-rate' },
     ]
   }
   constructor(options) {
@@ -59,9 +60,11 @@ class GranularProcessor extends AudioWorkletProcessor {
     const sprayLen   = Math.floor(spray * sampleRate * 0.5)
     const detuneST   = detune * 2
     for (let i = 0; i < bs; i++) {
-      this.bufL[this.writePos] = inL ? inL[i] : 0
-      this.bufR[this.writePos] = inR ? inR[i] : (inL ? inL[i] : 0)
-      this.writePos = (this.writePos + 1) % this.bufLen
+      if (parameters.record[0] >= 0.5) {
+        this.bufL[this.writePos] = inL ? inL[i] : 0
+        this.bufR[this.writePos] = inR ? inR[i] : (inL ? inL[i] : 0)
+        this.writePos = (this.writePos + 1) % this.bufLen
+      }
       const g = gate.length > 1 ? gate[i] : gate[0]
       if (g > 0.5 && this.prevGate <= 0.5) {
         for (let gi = 0; gi < grainCount && this.grains.length < MAX_GRAINS; gi++) {
@@ -491,6 +494,12 @@ class AudioEngine {
     const t = this.ctx.currentTime + when
     gate.setValueAtTime(1, t)
     gate.setValueAtTime(0, t + 0.01)
+  }
+
+  setGranularRecording(enabled: boolean): void {
+    if (!this.ctx || !this.granularNode) return
+    this.granularNode.parameters.get('record')!
+      .setValueAtTime(enabled ? 1 : 0, this.ctx.currentTime + 0.016)
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

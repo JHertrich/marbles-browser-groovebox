@@ -32,6 +32,7 @@ export type Action =
   | { type: 'PATCH_LANE_D_T';      patch: Partial<TParams> }
   | { type: 'PATCH_LANE_D_GRAIN';  patch: Partial<GranularParams> }
   | { type: 'TOGGLE_GRAN_ENABLED' }
+  | { type: 'TOGGLE_GRAN_RECORDING' }
   | { type: 'RANDOMIZE_GRAN' }
   | { type: 'RANDOMIZE_LANE_D_T' }
   | { type: 'RESET' }
@@ -289,6 +290,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, laneD: { ...state.laneD, grain: { ...state.laneD.grain, ...action.patch } } }
     case 'TOGGLE_GRAN_ENABLED':
       return { ...state, laneD: { ...state.laneD, granEnabled: !state.laneD.granEnabled } }
+    case 'TOGGLE_GRAN_RECORDING':
+      return { ...state, laneD: { ...state.laneD, granRecording: !state.laneD.granRecording } }
     case 'RANDOMIZE_GRAN':
       return { ...state, laneD: randD(state.laneD) }
     case 'RANDOMIZE_LANE_D_T':

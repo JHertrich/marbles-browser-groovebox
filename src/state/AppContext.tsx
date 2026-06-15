@@ -102,6 +102,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!audioReady) return
     audioEngine.setVoiceEnabled('gran', state.laneD.granEnabled)
   }, [state.laneD.granEnabled, audioReady])
+  useEffect(() => {
+    if (!audioReady) return
+    audioEngine.setGranularRecording(state.laneD.granRecording)
+  }, [state.laneD.granRecording, audioReady])
 
   // Sync Lane C send levels
   useEffect(() => {
