@@ -1,7 +1,7 @@
 # Groovebox
 
 A browser-based generative groovebox built with React 18, Vite, TypeScript, and the Web Audio API.  
-Three synchronized lanes — a Plaits synthesizer sequenced by Marbles, three Plaits drum voices driven by a probabilistic rhythm generator, and a live granular sampler that captures the synth output in real time — unified by a 4-LFO modulation matrix with 30 routable destinations.
+Three synchronized lanes — a 4-voice polyphonic Plaits synthesizer sequenced by Marbles, three Plaits drum voices driven by an Euclidean rhythm generator, and a live granular sampler that captures the synth output in real time — unified by a 4-LFO modulation matrix with 33 routable destinations.
 
 ---
 
@@ -140,7 +140,7 @@ React UI (main thread)
   └── useReducer + Context (JSON-serializable state)
         │
         ├── masterClock (setTimeout lookahead scheduler, 100 ms window)
-        │     └── MarblesT / MarblesX / LaneD (TypeScript, main thread)
+        │     └── MarblesT / MarblesX (Lane A synth) + EuclideanDrum × 3 (Lane B drums) + LaneD (TypeScript, main thread)
         │           └── audioEngine.triggerSynth / triggerKick / triggerSnare / triggerHat / triggerGranular(when)
         │
         ├── AudioParam setters (linearRampToValueAtTime for click-free knob changes)
@@ -154,6 +154,15 @@ React UI (main thread)
         └── Effects bus (delay + reverb)
               ├── Voice AnalyserNode → per-voice send GainNodes → DelayNode chain → masterGain
               └── Voice AnalyserNode → per-voice send GainNodes → ConvolverNode (synth IR) → masterGain
+```
+
+Polyphonic synth audio graph (Lane A):
+
+```
+WoscNode[0] ─┐
+WoscNode[1] ─┤ (each via per-voice GainNode envelope) → synthMuteGain → synthAnalyser ─┬─ masterGain
+WoscNode[2] ─┤                                                                          ├─ synthDelaySend
+WoscNode[3] ─┘                                                                          └─ synthReverbSend
 ```
 
 Granular audio graph:
@@ -193,16 +202,18 @@ State is split strictly:
 ```
 src/
 ├── audio/
-│   ├── AudioEngine.ts       # Singleton: Plaits voices + granular worklet + delay/reverb buses
-│   └── types.ts             # WoscNode interface + param types incl. GranularParams, SnareParams
+│   ├── AudioEngine.ts       # Singleton: 4-voice Plaits pool + per-voice GainNode envelopes + granular worklet + delay/reverb buses
+│   ├── LFOEngine.ts         # 4-LFO engine (25 ms tick, drift-free phase, 33 modulation destinations)
+│   └── types.ts             # WoscNode interface + param types incl. GranularParams, SnareParams, ModDest
 ├── sequencer/
 │   ├── LogisticMap.ts       # Chaotic RNG (logistic map) for Marbles
 │   ├── scales.ts            # Scale definitions + pitch quantizer
 │   ├── MarblesT.ts          # t-section: timing/trigger generator with deja_vu
 │   ├── MarblesX.ts          # x-section: pitch voltage generator with deja_vu
+│   ├── EuclideanDrum.ts     # Bjorklund/Bresenham Euclidean rhythm generator (fill / variation / rotation)
 │   ├── MasterClock.ts       # AudioContext lookahead scheduler
-│   ├── LaneA.ts             # Wires t + x → Plaits synth voice
-│   ├── LaneB.ts             # 3 independent MarblesT → Plaits drum voices
+│   ├── LaneA.ts             # Wires t + x → 4-voice polyphonic Plaits synth
+│   ├── LaneB.ts             # 3 independent EuclideanDrum → Plaits drum voices
 │   └── LaneD.ts             # Lane C granular: MarblesT → granular sampler trigger
 ├── components/
 │   ├── Transport.tsx        # BPM, play/stop, global randomize, save/load
@@ -230,13 +241,14 @@ src/
 - [x] **Phase 1** — Vite + React + TypeScript scaffold
 - [x] **Phase 2** — Plaits WASM audio engine: 4 voices (synth + kick + snare + hat), Vite ESM fix
 - [x] **Phase 3** — Marbles sequencer: logistic map, t-generator, x-generator, Lane A wired end-to-end
-- [x] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
+- [x] **Phase 4** — Lane B drums: 3 independent trigger streams → Plaits drum voices
 - [x] **Phase 5** — Full UI: SVG Knob, Transport bar, LaneA/LaneB panels, oscilloscope, peak meters, reactive step grids, scale/mode selectors, preset save/load, useReducer + Context
 - [x] **Phase 6** — Effects (delay + reverb send buses, per-voice send knobs, FxSection); granular ⚄ randomize; delay anti-oscillation (Q=0.5, 400–6 kHz, 0.85 feedback cap); per-voice LED mute toggles (Synth, Kick, Snare, Hi-Hat); removed redundant footer
 - [x] **Phase 7** — Lane C granular sampler: Ableton Granulator II–inspired custom `AudioWorkletProcessor` loaded via Blob URL (no build changes); 4-second stereo circular buffer sampling Lane A synth via `synthAnalyser` fan-out; Marbles T trigger clock; 8 grain controls; per-send FX knobs; mute toggle; ⚄ randomize; REC/FRZ buffer recording toggle; capture-input oscilloscope; pulsing REC button animation
 - [x] **Phase 8** — Granular musical enhancement: TRIG/CONT mode toggle (continuous self-clocked grain stream at 1–16 grains/sec for drones); Wander knob (slow bounded position random walk, ~20 s full range at max); snare parameter mapping corrected (timbre=snappiness, harmonics=body+noise frequency, morph=body resonance); Body knob added to snare; pre-initialization of snare voice to avoid first-hit silence at param=0 defaults; granular Pitch snapped to 13 musical intervals (±2 oct in steps of unison/m3/M3/P4/P5/Oct) — worklet produces exact frequency ratios at semitone boundaries; randomize respects the same interval set
 - [x] **Phase 9** — LFO modulation matrix: 4 LFOs (sine/triangle/square/S&H) with free (0.05–10 Hz logarithmic) or BPM-synced rate ('4/1'–'1/16'); depth knob; animated bipolar gauge; 33 modulation destinations across all lanes and FX (including reverb size/decay/level — IR regeneration throttled to 500 ms); collapsible mod section with dashed-ring indicator on modulated knobs; two independent ⚄ buttons (LFO params only / matrix routing only); LFOEngine ticks at 25 ms via `setInterval`, using `audioContext.currentTime` for drift-free phase; audio params via `AudioEngine.applyModulation` (`setValueAtTime`); JS sequencer params (jitter, bias, density, drum timbre) written directly to `laneA/B/D.params` between scheduler ticks
-- [ ] **Phase 10** — Polish: parameter smoothing, Electron/Tauri wrapper
+- [x] **Phase 10** — 4-voice polyphony for Lane A synth (round-robin WoscNode pool; continuous mode + per-voice GainNode envelopes, 10 ms attack, 150 ms–4.15 s decay); Euclidean rhythm generator for Lane B drums (Bjorklund/Bresenham, per-voice Fill/Variation/Rotation; default: four-on-floor kick, backbeat snare, straight-8ths hat); BPM-synced delay bug fix (double `linearRampToValueAtTime` race); granular ⚄ now only randomizes grain params (timing has its own button)
+- [ ] **Phase 11** — Polish: parameter smoothing, Electron/Tauri wrapper
 
 ---
 
