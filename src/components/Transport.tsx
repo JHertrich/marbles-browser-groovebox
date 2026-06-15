@@ -1,6 +1,7 @@
 import { useApp } from '../state/AppContext'
 import { laneA } from '../sequencer/LaneA'
 import { laneB } from '../sequencer/LaneB'
+import { laneD } from '../sequencer/LaneD'
 
 export function Transport() {
   const { state, dispatch, startAudio, audioReady } = useApp()
@@ -21,6 +22,7 @@ export function Transport() {
     dispatch({ type: 'RANDOMIZE' })
     laneA.reseed(); laneA.reset()
     laneB.reseed(); laneB.reset()
+    laneD.reseed(); laneD.reset()
   }
 
   const handleSave = () => (window as never as Record<string, () => void>).__gb_save?.()

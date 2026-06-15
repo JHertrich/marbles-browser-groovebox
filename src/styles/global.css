@@ -18,6 +18,9 @@
   --accent-c: #5b9ee0;       /* blue   — Lane C / Effects */
   --accent-c-dim: #2d6ab5;
   --accent-c-pale: #90bfed;
+  --accent-d: #d47840;       /* orange — Lane D / Granular */
+  --accent-d-dim: #a05020;
+  --accent-d-pale: #e8a878;
 
   --text-primary: #e8e8f0;
   --text-secondary: #8888aa;
@@ -84,6 +87,7 @@ input[type="range"] {
 .tag-a { background: var(--bg-chip-sel-a); color: var(--accent-a-pale); }
 .tag-b { background: var(--bg-chip-sel-b); color: var(--accent-b-pale); }
 .tag-c { background: var(--bg-chip-sel-c); color: var(--accent-c-pale); }
+.tag-d { background: #2e1808; color: var(--accent-d-pale); }
 .lane-name { font-size: 13px; color: var(--text-primary); }
 .lane-mode { margin-left: auto; font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
 .dot { width: 7px; height: 7px; border-radius: 50%; }

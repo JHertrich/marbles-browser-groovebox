@@ -1,10 +1,10 @@
 import type { TParams } from '../sequencer/MarblesT'
 import type { XParams } from '../sequencer/MarblesX'
-import type { SynthParams, KickParams, SnareParams, HatParams } from '../audio/AudioEngine'
+import type { SynthParams, KickParams, SnareParams, HatParams, GranularParams } from '../audio/AudioEngine'
 import type { DrumVoiceConfig } from '../sequencer/LaneB'
 import type { RootNote, ScaleMode } from '../sequencer/scales'
 
-export type { TParams, XParams, SynthParams, KickParams, SnareParams, HatParams, DrumVoiceConfig, RootNote, ScaleMode }
+export type { TParams, XParams, SynthParams, KickParams, SnareParams, HatParams, GranularParams, DrumVoiceConfig, RootNote, ScaleMode }
 
 export type SyncDiv = '1/8' | '3/16' | '1/4' | '3/8' | '1/2'
 
@@ -38,7 +38,14 @@ export interface LaneCState {
     kick:  SendLevels
     snare: SendLevels
     hat:   SendLevels
+    gran:  SendLevels
   }
+}
+
+export interface LaneDState {
+  t: TParams
+  grain: GranularParams
+  granEnabled: boolean
 }
 
 export interface LaneAState {
@@ -63,6 +70,7 @@ export interface AppState {
   laneA: LaneAState
   laneB: LaneBState
   laneC: LaneCState
+  laneD: LaneDState
 }
 
 export const DEFAULT_STATE: AppState = {
@@ -88,6 +96,12 @@ export const DEFAULT_STATE: AppState = {
       kick:  { delay: 0.05, reverb: 0.15 },
       snare: { delay: 0.15, reverb: 0.25 },
       hat:   { delay: 0.03, reverb: 0.08 },
+      gran:  { delay: 0.2,  reverb: 0.3  },
     },
+  },
+  laneD: {
+    t:    { rate: 3, jitter: 0.2, gate: 0.5, bias: 0.5, dejaVu: 0.3, length: 16 },
+    grain: { position: 0.2, size: 0.4, density: 0.4, pitch: 0.5, spray: 0.3, detune: 0.1, width: 0.5, level: 0.7 },
+    granEnabled: true,
   },
 }

@@ -1,4 +1,4 @@
-import type { AppState, LaneAState, LaneBState, LaneCState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams } from './types'
+import type { AppState, LaneAState, LaneBState, LaneCState, LaneDState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams, GranularParams } from './types'
 import { DEFAULT_STATE } from './types'
 import { SCALE_MODE_NAMES, ROOT_NOTES } from '../sequencer/scales'
 
@@ -29,6 +29,11 @@ export type Action =
   | { type: 'TOGGLE_KICK_ENABLED' }
   | { type: 'TOGGLE_SNARE_ENABLED' }
   | { type: 'TOGGLE_HAT_ENABLED' }
+  | { type: 'PATCH_LANE_D_T';      patch: Partial<TParams> }
+  | { type: 'PATCH_LANE_D_GRAIN';  patch: Partial<GranularParams> }
+  | { type: 'TOGGLE_GRAN_ENABLED' }
+  | { type: 'RANDOMIZE_GRAN' }
+  | { type: 'RANDOMIZE_LANE_D_T' }
   | { type: 'RESET' }
   | { type: 'LOAD_PRESET';          state: AppState }
 
@@ -77,6 +82,30 @@ function randB(laneB: LaneBState): LaneBState {
   }
 }
 
+function randD(laneD: LaneDState): LaneDState {
+  return {
+    ...laneD,
+    t: {
+      rate: Math.ceil(rnd() * 8),
+      jitter: rnd() * 0.6,
+      gate: 0.2 + rnd() * 0.7,
+      bias: 0.3 + rnd() * 0.7,
+      dejaVu: rnd() * 0.8,
+      length: 4 + Math.floor(rnd() * 29),
+    },
+    grain: {
+      position: rnd(),
+      size: 0.1 + rnd() * 0.9,
+      density: rnd(),
+      pitch: 0.2 + rnd() * 0.6,
+      spray: rnd() * 0.7,
+      detune: rnd() * 0.5,
+      width: rnd(),
+      level: 0.4 + rnd() * 0.6,
+    },
+  }
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_BPM':
@@ -117,6 +146,7 @@ export function reducer(state: AppState, action: Action): AppState {
         ...state,
         laneA: randA(state.laneA),
         laneB: randB(state.laneB),
+        laneD: randD(state.laneD),
         laneC: {
           ...state.laneC,
           delay: {
@@ -250,6 +280,29 @@ export function reducer(state: AppState, action: Action): AppState {
             tone: 0.3 + rnd() * 0.7,
             preDelay: rnd() * 0.08,
             returnLevel: 0.3 + rnd() * 0.6,
+          },
+        },
+      }
+    case 'PATCH_LANE_D_T':
+      return { ...state, laneD: { ...state.laneD, t: { ...state.laneD.t, ...action.patch } } }
+    case 'PATCH_LANE_D_GRAIN':
+      return { ...state, laneD: { ...state.laneD, grain: { ...state.laneD.grain, ...action.patch } } }
+    case 'TOGGLE_GRAN_ENABLED':
+      return { ...state, laneD: { ...state.laneD, granEnabled: !state.laneD.granEnabled } }
+    case 'RANDOMIZE_GRAN':
+      return { ...state, laneD: randD(state.laneD) }
+    case 'RANDOMIZE_LANE_D_T':
+      return {
+        ...state,
+        laneD: {
+          ...state.laneD,
+          t: {
+            rate: Math.ceil(rnd() * 8),
+            jitter: rnd() * 0.6,
+            gate: 0.2 + rnd() * 0.7,
+            bias: 0.3 + rnd() * 0.7,
+            dejaVu: rnd() * 0.8,
+            length: 4 + Math.floor(rnd() * 29),
           },
         },
       }

@@ -5,6 +5,7 @@ import { audioEngine } from '../audio/AudioEngine'
 import { masterClock } from '../sequencer/MasterClock'
 import { laneA } from '../sequencer/LaneA'
 import { laneB } from '../sequencer/LaneB'
+import { laneD } from '../sequencer/LaneD'
 
 interface Ctx {
   state: AppState
@@ -35,10 +36,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       masterClock.start(audioEngine.audioContext!)
       laneA.start()
       laneB.start()
+      laneD.start()
     } else if (!state.isPlaying && prevPlaying.current) {
       masterClock.stop()
       laneA.stop()
       laneB.stop()
+      laneD.stop()
     }
     prevPlaying.current = state.isPlaying
   }, [state.isPlaying, audioReady])
@@ -89,11 +92,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     audioEngine.setVoiceEnabled('hat',   state.laneB.hat.enabled)
   }, [state.laneB.kick.enabled, state.laneB.snare.enabled, state.laneB.hat.enabled, audioReady])
 
+  // Sync Lane D params
+  useEffect(() => { laneD.params.t = state.laneD.t }, [state.laneD.t])
+  useEffect(() => {
+    if (!audioReady) return
+    audioEngine.setGranularParams(state.laneD.grain)
+  }, [state.laneD.grain, audioReady])
+  useEffect(() => {
+    if (!audioReady) return
+    audioEngine.setVoiceEnabled('gran', state.laneD.granEnabled)
+  }, [state.laneD.granEnabled, audioReady])
+
   // Sync Lane C send levels
   useEffect(() => {
     if (!audioReady) return
     const { sends } = state.laneC
-    ;(['synth', 'kick', 'snare', 'hat'] as const).forEach(v => {
+    ;(['synth', 'kick', 'snare', 'hat', 'gran'] as const).forEach(v => {
       audioEngine.setSendLevel(v, 'delay', sends[v].delay)
       audioEngine.setSendLevel(v, 'reverb', sends[v].reverb)
     })

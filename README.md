@@ -22,13 +22,14 @@ and three Plaits drum voices driven by a probabilistic rhythm generator.
 
 - **Lane A — Synth**: Marbles-inspired generative pitch sequencer (TypeScript) driving a Plaits WASM synthesizer voice
 - **Lane B — Drums**: Marbles-inspired probabilistic rhythm generator driving three Plaits drum voices (Kick, Snare, Hi-Hat)
+- **Lane D — Granular**: Live granular sampler (Ableton Granulator II–inspired) — samples Lane A synth output in real time into a 4-second stereo circular buffer via a custom AudioWorkletProcessor; triggered by an independent Marbles T clock; controls: Position, Size, Density, Pitch (±2 oct), Spray, Detune (±2 st), Width, Level
 - **Effects**: Send-based delay (BPM-sync or free, feedback-capped, tone-filtered) and convolution reverb with algorithmically generated impulse response; per-voice Dly/Rvb send knobs inline on each voice card; global Delay and Reverb controls in a compact strip
-- **Voice mute toggles**: LED-style enable/bypass button on each voice (Synth, Kick, Snare, Hi-Hat); mutes audio + effects sends without stopping the pattern
+- **Voice mute toggles**: LED-style enable/bypass button on each voice (Synth, Kick, Snare, Hi-Hat, Granular); mutes audio + effects sends without stopping the pattern
 - **Shared master clock**: `AudioContext.currentTime`-based lookahead scheduler (100 ms window, 25 ms interval)
 - **Generative sequencing**: Independent t (timing) and x (pitch) generators with `deja_vu` loop control
 - **Randomize system** — granular ⚄ buttons at every level:
-  - Per-section: t-generator, x-generator (incl. root + scale), rhythm generator, Delay, Reverb
-  - Per-voice: Synth (incl. engine), Kick, Snare, Hi-Hat
+  - Per-section: t-generator, x-generator (incl. root + scale), rhythm generator, Delay, Reverb, Granular (grain + t)
+  - Per-voice: Synth (incl. engine), Kick, Snare, Hi-Hat, Granular
   - Global (transport ⚄): all of the above at once
 - **Preset system**: Save/load all parameters as JSON via `localStorage`
 
@@ -114,12 +115,14 @@ React UI (main thread)
   └── useReducer + Context (JSON-serializable state)
         │
         ├── masterClock (setTimeout lookahead scheduler, 100 ms window)
-        │     └── MarblesT / MarblesX (TypeScript, main thread)
-        │           └── audioEngine.triggerSynth / triggerKick / triggerSnare / triggerHat(when)
+        │     └── MarblesT / MarblesX / LaneD.t (TypeScript, main thread)
+        │           └── audioEngine.triggerSynth / triggerKick / triggerSnare / triggerHat / triggerGranular(when)
         │
         ├── AudioParam setters (linearRampToValueAtTime for click-free knob changes)
-        │     └── AudioWorkletNode (@vectorsize/woscillators)
-        │           └── Plaits WASM (render() per audio block, off main thread)
+        │     ├── AudioWorkletNode (@vectorsize/woscillators)
+        │     │     └── Plaits WASM (render() per audio block, off main thread)
+        │     └── AudioWorkletNode (granular-processor — Blob URL, custom)
+        │           └── 4-second stereo circular buffer, up to 32 simultaneous grains
         │
         └── Lane C effects bus
               ├── Voice AnalyserNode → per-voice send GainNodes → DelayNode chain → masterGain
@@ -146,8 +149,8 @@ State is split strictly:
 ```
 src/
 ├── audio/
-│   ├── AudioEngine.ts       # Singleton: 4 Plaits voices + delay/reverb send buses
-│   └── types.ts             # WoscNode interface + param types
+│   ├── AudioEngine.ts       # Singleton: Plaits voices + granular worklet + delay/reverb buses
+│   └── types.ts             # WoscNode interface + param types incl. GranularParams
 ├── sequencer/
 │   ├── LogisticMap.ts       # Chaotic RNG (logistic map) for Marbles
 │   ├── scales.ts            # Scale definitions + pitch quantizer
@@ -155,18 +158,20 @@ src/
 │   ├── MarblesX.ts          # x-section: pitch voltage generator with deja_vu
 │   ├── MasterClock.ts       # AudioContext lookahead scheduler
 │   ├── LaneA.ts             # Wires t + x → Plaits synth voice
-│   └── LaneB.ts             # 3 independent MarblesT → Plaits drum voices
+│   ├── LaneB.ts             # 3 independent MarblesT → Plaits drum voices
+│   └── LaneD.ts             # MarblesT → granular sampler trigger
 ├── components/
 │   ├── Transport.tsx        # BPM, play/stop, global randomize, save/load
 │   ├── LaneASection.tsx     # Marbles t + x controls, Plaits engine + knobs
 │   ├── LaneBSection.tsx     # Rhythm generator + 3 drum voice panels
+│   ├── LaneDSection.tsx     # Granular sampler controls (Granulator II–style)
 │   ├── FxSection.tsx        # Compact Delay + Reverb global controls
 │   ├── Knob.tsx             # SVG rotary knob with pointer-capture drag
 │   ├── StepGrid.tsx         # Reactive trigger-history display (read-only)
 │   ├── Oscilloscope.tsx     # AnalyserNode time-domain canvas
 │   └── PeakMeter.tsx        # AnalyserNode frequency-domain bar
 ├── state/
-│   ├── types.ts             # AppState, LaneAState, LaneBState, LaneCState
+│   ├── types.ts             # AppState, LaneAState, LaneBState, LaneCState, LaneDState
 │   ├── reducer.ts           # Pure reducer + all randomize helpers
 │   └── AppContext.tsx       # Provider: syncs state → audio on every change
 ├── styles/
@@ -184,7 +189,8 @@ src/
 - [x] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
 - [x] **Phase 5** — Full UI: SVG Knob component, Transport bar, LaneA/LaneB panels, oscilloscope, peak meters, reactive step grids, scale/mode selectors, preset save/load via localStorage, useReducer + Context state management
 - [x] **Phase 6** — Effects (delay + reverb send buses, per-voice send knobs, compact FxSection); granular ⚄ randomize at every level (per-section, per-voice, global); snare parameter fix (harmonics=snap, timbre=tone); delay feedback anti-oscillation (Q=0.5, 400–6kHz tone range, 0.85 cap); per-voice LED mute toggles
-- [ ] **Phase 7** — Polish: parameter smoothing, Electron/Tauri wrapper
+- [x] **Phase 7** — Lane D granular sampler: Ableton Granulator II–inspired custom AudioWorkletProcessor (Blob URL, no build changes), 4-second stereo circular buffer sampling Lane A synth output, Marbles T trigger clock, 8 grain controls (Position, Size, Density, Pitch, Spray, Detune, Width, Level), per-send FX knobs, mute toggle, ⚄ randomize
+- [ ] **Phase 8** — Polish: parameter smoothing, Electron/Tauri wrapper
 
 ---
 

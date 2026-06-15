@@ -5,9 +5,104 @@ import type {
   KickParams,
   SnareParams,
   HatParams,
+  GranularParams,
 } from './types'
 
-export type { SynthParams, KickParams, SnareParams, HatParams }
+export type { SynthParams, KickParams, SnareParams, HatParams, GranularParams }
+
+// Granular AudioWorkletProcessor — loaded via Blob URL so no extra build config is needed.
+const GRANULAR_PROCESSOR = `
+const MAX_GRAINS = 32
+class GranularProcessor extends AudioWorkletProcessor {
+  static get parameterDescriptors() {
+    return [
+      { name: 'position', defaultValue: 0.2, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'size',     defaultValue: 0.4, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'density',  defaultValue: 0.4, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'pitch',    defaultValue: 0.5, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'spray',    defaultValue: 0.3, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'detune',   defaultValue: 0.1, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'width',    defaultValue: 0.5, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'level',    defaultValue: 0.7, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'gate',     defaultValue: 0,   minValue: 0, maxValue: 1, automationRate: 'a-rate' },
+    ]
+  }
+  constructor(options) {
+    super(options)
+    this.bufLen   = Math.ceil(sampleRate * 4)
+    this.bufL     = new Float32Array(this.bufLen)
+    this.bufR     = new Float32Array(this.bufLen)
+    this.writePos = 0
+    this.grains   = []
+    this.prevGate = 0
+  }
+  process(inputs, outputs, parameters) {
+    const inL  = inputs[0]?.[0]
+    const inR  = inputs[0]?.[1]
+    const outL = outputs[0][0]
+    const outR = outputs[0][1] ?? outputs[0][0]
+    const bs   = outL.length
+    const pos    = parameters.position[0]
+    const sz     = parameters.size[0]
+    const dens   = parameters.density[0]
+    const pit    = parameters.pitch[0]
+    const spray  = parameters.spray[0]
+    const detune = parameters.detune[0]
+    const width  = parameters.width[0]
+    const lvl    = parameters.level[0]
+    const gate   = parameters.gate
+    const grainLen   = Math.floor(sampleRate * (0.02 + sz * 0.38))
+    const baseRate   = Math.pow(2, (pit - 0.5) * 4)
+    const grainCount = Math.max(1, Math.round(1 + dens * 11))
+    const stagger    = Math.max(1, Math.floor(grainLen / (2 * Math.max(grainCount, 2))))
+    const bufOffset  = Math.floor(pos * Math.max(1, this.bufLen - grainLen))
+    const sprayLen   = Math.floor(spray * sampleRate * 0.5)
+    const detuneST   = detune * 2
+    for (let i = 0; i < bs; i++) {
+      this.bufL[this.writePos] = inL ? inL[i] : 0
+      this.bufR[this.writePos] = inR ? inR[i] : (inL ? inL[i] : 0)
+      this.writePos = (this.writePos + 1) % this.bufLen
+      const g = gate.length > 1 ? gate[i] : gate[0]
+      if (g > 0.5 && this.prevGate <= 0.5) {
+        for (let gi = 0; gi < grainCount && this.grains.length < MAX_GRAINS; gi++) {
+          const scatter = Math.floor((Math.random() * 2 - 1) * sprayLen)
+          const rp      = (this.writePos - bufOffset + scatter + this.bufLen * 8) % this.bufLen
+          const rate    = baseRate * Math.pow(2, (Math.random() * 2 - 1) * detuneST / 12)
+          const pan     = (Math.random() * 2 - 1) * width
+          this.grains.push({ rp, rem: grainLen, tot: grainLen, rate, pan, delay: gi * stagger })
+        }
+      }
+      this.prevGate = g
+      let sL = 0, sR = 0
+      for (let gi = this.grains.length - 1; gi >= 0; gi--) {
+        const gr = this.grains[gi]
+        if (gr.delay > 0) { gr.delay--; continue }
+        if (gr.rem <= 0)  { this.grains.splice(gi, 1); continue }
+        const atkLen  = Math.max(4, Math.floor(gr.tot * 0.1))
+        const elapsed = gr.tot - gr.rem
+        const amp = elapsed < atkLen ? elapsed / atkLen : gr.rem < atkLen ? gr.rem / atkLen : 1
+        const idx  = Math.floor(gr.rp)
+        const frac = gr.rp - idx
+        const i0   = ((idx     % this.bufLen) + this.bufLen) % this.bufLen
+        const i1   = (((idx+1) % this.bufLen) + this.bufLen) % this.bufLen
+        const smL  = this.bufL[i0] + frac * (this.bufL[i1] - this.bufL[i0])
+        const smR  = this.bufR[i0] + frac * (this.bufR[i1] - this.bufR[i0])
+        const panL = Math.sqrt(0.5 * (1 - gr.pan))
+        const panR = Math.sqrt(0.5 * (1 + gr.pan))
+        sL += smL * amp * panL
+        sR += smR * amp * panR
+        gr.rp  = (gr.rp + gr.rate + this.bufLen * 2) % this.bufLen
+        gr.rem--
+      }
+      if (this.grains.length > MAX_GRAINS) this.grains.splice(0, this.grains.length - MAX_GRAINS)
+      outL[i] = sL * lvl
+      if (outL !== outR) outR[i] = sR * lvl
+    }
+    return true
+  }
+}
+registerProcessor('granular-processor', GranularProcessor)
+`
 
 // Delay BPM-sync divisions expressed as quarter-note multiples
 const SYNC_DIV_BEATS: Record<string, number> = {
@@ -59,6 +154,13 @@ class AudioEngine {
   private reverbFilter: BiquadFilterNode | null = null
   private reverbReturn: GainNode | null = null
 
+  // ── Granular sampler (Lane D) ────────────────────────────────────────────────
+  private granularNode: AudioWorkletNode | null = null
+  private granMuteGain: GainNode | null = null
+  private granAnalyser: AnalyserNode | null = null
+  private granDelaySend: GainNode | null = null
+  private granReverbSend: GainNode | null = null
+
   private _initialized = false
 
   get isInitialized() { return this._initialized }
@@ -67,6 +169,7 @@ class AudioEngine {
   get kickAnalyserNode() { return this.kickAnalyser }
   get snareAnalyserNode() { return this.snareAnalyser }
   get hatAnalyserNode() { return this.hatAnalyser }
+  get granAnalyserNode() { return this.granAnalyser }
 
   async init(): Promise<void> {
     if (this._initialized) {
@@ -76,6 +179,12 @@ class AudioEngine {
 
     this.ctx = new AudioContext()
     await wosc.loadOscillator(this.ctx)
+
+    // Load granular worklet via Blob URL — no Vite config changes required
+    const granBlob = new Blob([GRANULAR_PROCESSOR], { type: 'application/javascript' })
+    const granBlobUrl = URL.createObjectURL(granBlob)
+    await this.ctx.audioWorklet.addModule(granBlobUrl)
+    URL.revokeObjectURL(granBlobUrl)
 
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = 0.8
@@ -140,6 +249,23 @@ class AudioEngine {
     this.synthVoice.connect(this.synthMuteGain)
     this.synthMuteGain.connect(this.synthAnalyser)
     this.synthVoice.start()
+
+    // Granular sampler taps synthVoice directly (bypasses mute so buffer keeps filling)
+    this.granularNode = new AudioWorkletNode(this.ctx, 'granular-processor', {
+      numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
+    })
+    this.granMuteGain  = this.ctx.createGain(); this.granMuteGain.gain.value = 1
+    this.granAnalyser  = this.ctx.createAnalyser(); this.granAnalyser.fftSize = 2048
+    this.granAnalyser.connect(this.masterGain)
+
+    this.granDelaySend  = this.ctx.createGain(); this.granDelaySend.gain.value = 0.2
+    this.granReverbSend = this.ctx.createGain(); this.granReverbSend.gain.value = 0.3
+    this.granAnalyser.connect(this.granDelaySend);  this.granDelaySend.connect(this.delayInput)
+    this.granAnalyser.connect(this.granReverbSend); this.granReverbSend.connect(this.reverbPreDelay)
+
+    this.synthVoice.connect(this.granularNode)
+    this.granularNode.connect(this.granMuteGain)
+    this.granMuteGain.connect(this.granAnalyser)
 
     // Kick
     this.kickMuteGain = this.ctx.createGain(); this.kickMuteGain.gain.value = 1
@@ -317,28 +443,54 @@ class AudioEngine {
     this.reverbReturn.gain.linearRampToValueAtTime(returnLevel, t)
   }
 
-  setSendLevel(voice: 'synth' | 'kick' | 'snare' | 'hat', effect: 'delay' | 'reverb', level: number): void {
+  setSendLevel(voice: 'synth' | 'kick' | 'snare' | 'hat' | 'gran', effect: 'delay' | 'reverb', level: number): void {
     if (!this.ctx) return
     const map = {
       synth: { delay: this.synthDelaySend, reverb: this.synthReverbSend },
       kick:  { delay: this.kickDelaySend,  reverb: this.kickReverbSend  },
       snare: { delay: this.snareDelaySend, reverb: this.snareReverbSend },
       hat:   { delay: this.hatDelaySend,   reverb: this.hatReverbSend   },
+      gran:  { delay: this.granDelaySend,  reverb: this.granReverbSend  },
     }
     const node = map[voice][effect]
     if (node) node.gain.linearRampToValueAtTime(level, this.ctx.currentTime + 0.016)
   }
 
-  setVoiceEnabled(voice: 'synth' | 'kick' | 'snare' | 'hat', enabled: boolean): void {
+  setVoiceEnabled(voice: 'synth' | 'kick' | 'snare' | 'hat' | 'gran', enabled: boolean): void {
     if (!this.ctx) return
     const map = {
       synth: this.synthMuteGain,
       kick:  this.kickMuteGain,
       snare: this.snareMuteGain,
       hat:   this.hatMuteGain,
+      gran:  this.granMuteGain,
     }
     const gain = map[voice]
     if (gain) gain.gain.linearRampToValueAtTime(enabled ? 1 : 0, this.ctx.currentTime + 0.016)
+  }
+
+  // ─── Granular sampler (Lane D) ────────────────────────────────────────────
+
+  setGranularParams(params: GranularParams): void {
+    if (!this.ctx || !this.granularNode) return
+    const t = this.ctx.currentTime + 0.016
+    const p = this.granularNode.parameters
+    p.get('position')!.linearRampToValueAtTime(params.position, t)
+    p.get('size')!.linearRampToValueAtTime(params.size, t)
+    p.get('density')!.linearRampToValueAtTime(params.density, t)
+    p.get('pitch')!.linearRampToValueAtTime(params.pitch, t)
+    p.get('spray')!.linearRampToValueAtTime(params.spray, t)
+    p.get('detune')!.linearRampToValueAtTime(params.detune, t)
+    p.get('width')!.linearRampToValueAtTime(params.width, t)
+    p.get('level')!.linearRampToValueAtTime(params.level, t)
+  }
+
+  triggerGranular(when = 0): void {
+    if (!this.ctx || !this.granularNode) return
+    const gate = this.granularNode.parameters.get('gate')!
+    const t = this.ctx.currentTime + when
+    gate.setValueAtTime(1, t)
+    gate.setValueAtTime(0, t + 0.01)
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

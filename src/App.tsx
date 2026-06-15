@@ -1,6 +1,7 @@
 import { Transport } from './components/Transport'
 import { LaneASection } from './components/LaneASection'
 import { LaneBSection } from './components/LaneBSection'
+import { LaneDSection } from './components/LaneDSection'
 import { FxSection } from './components/FxSection'
 
 export default function App() {
@@ -9,6 +10,7 @@ export default function App() {
       <Transport />
       <LaneASection />
       <LaneBSection />
+      <LaneDSection />
       <FxSection />
     </div>
   )
