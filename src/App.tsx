@@ -1,6 +1,7 @@
 import { Transport } from './components/Transport'
 import { LaneASection } from './components/LaneASection'
 import { LaneBSection } from './components/LaneBSection'
+import { LaneCSection } from './components/LaneCSection'
 import { useApp } from './state/AppContext'
 import { laneA } from './sequencer/LaneA'
 import { laneB } from './sequencer/LaneB'
@@ -14,6 +15,7 @@ export default function App() {
       <Transport />
       <LaneASection />
       <LaneBSection />
+      <LaneCSection />
       <div className="footer">
         <button className="btn" onClick={() => w.__gb_save?.()}>💾 Save preset</button>
         <button className="btn" onClick={() => w.__gb_load?.()}>📂 Load preset</button>

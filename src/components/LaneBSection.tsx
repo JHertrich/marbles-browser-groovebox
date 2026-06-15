@@ -73,6 +73,7 @@ export function LaneBSection() {
           <div className="dv-header">
             <span className="dv-name" style={{ color: A }}>● Kick</span>
             <span className="dv-prob">Bias {Math.round(kick.bias * 100)}%</span>
+            <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_KICK' })}>⚄</button>
           </div>
           <div className="prob-bar">
             <div className="prob-fill" style={{ background: A, width: `${kick.bias * 100}%` }} />
@@ -95,6 +96,7 @@ export function LaneBSection() {
           <div className="dv-header">
             <span className="dv-name" style={{ color: B }}>— Snare</span>
             <span className="dv-prob">Bias {Math.round(snare.bias * 100)}%</span>
+            <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_SNARE' })}>⚄</button>
           </div>
           <div className="prob-bar">
             <div className="prob-fill" style={{ background: B, width: `${snare.bias * 100}%` }} />
@@ -117,6 +119,7 @@ export function LaneBSection() {
           <div className="dv-header">
             <span className="dv-name" style={{ color: HAT }}>∿ Hi-Hat</span>
             <span className="dv-prob">Bias {Math.round(hat.bias * 100)}%</span>
+            <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_HAT' })}>⚄</button>
           </div>
           <div className="prob-bar">
             <div className="prob-fill" style={{ background: HAT, width: `${hat.bias * 100}%` }} />

@@ -6,6 +6,41 @@ import type { RootNote, ScaleMode } from '../sequencer/scales'
 
 export type { TParams, XParams, SynthParams, KickParams, SnareParams, HatParams, DrumVoiceConfig, RootNote, ScaleMode }
 
+export type SyncDiv = '1/8' | '3/16' | '1/4' | '3/8' | '1/2'
+
+export interface DelayState {
+  time: number        // 0–2.0 seconds (used when bpmSync = false)
+  feedback: number    // 0–1
+  tone: number        // 0–1 (lowpass cutoff: 300 Hz → 18 kHz)
+  returnLevel: number // 0–1
+  bpmSync: boolean
+  syncDiv: SyncDiv
+}
+
+export interface ReverbState {
+  size: number        // 0–1 → 0.5–6 s IR length
+  decay: number       // 0–1 → RT60 steepness
+  tone: number        // 0–1 (post-IR lowpass)
+  preDelay: number    // 0–0.1 seconds
+  returnLevel: number // 0–1
+}
+
+export interface SendLevels {
+  delay: number
+  reverb: number
+}
+
+export interface LaneCState {
+  delay: DelayState
+  reverb: ReverbState
+  sends: {
+    synth: SendLevels
+    kick:  SendLevels
+    snare: SendLevels
+    hat:   SendLevels
+  }
+}
+
 export interface LaneAState {
   t: TParams
   x: XParams
@@ -26,6 +61,7 @@ export interface AppState {
   isPlaying: boolean
   laneA: LaneAState
   laneB: LaneBState
+  laneC: LaneCState
 }
 
 export const DEFAULT_STATE: AppState = {
@@ -41,5 +77,15 @@ export const DEFAULT_STATE: AppState = {
     kick:  { bias: 0.85, dejaVu: 0, tune: 36, decay: 0.5, snap: 0.6 },
     snare: { bias: 0.65, dejaVu: 0, snap: 0.4, tone: 0.5, decay: 0.4 },
     hat:   { bias: 0.55, dejaVu: 0, open: 0.2, tone: 0.7 },
+  },
+  laneC: {
+    delay:  { time: 0.375, feedback: 0.4, tone: 0.7, returnLevel: 0.6, bpmSync: true, syncDiv: '3/8' },
+    reverb: { size: 0.6, decay: 0.5, tone: 0.6, preDelay: 0.02, returnLevel: 0.5 },
+    sends: {
+      synth: { delay: 0.25, reverb: 0.35 },
+      kick:  { delay: 0.05, reverb: 0.15 },
+      snare: { delay: 0.15, reverb: 0.25 },
+      hat:   { delay: 0.03, reverb: 0.08 },
+    },
   },
 }

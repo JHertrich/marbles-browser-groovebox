@@ -57,6 +57,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
     laneB.params = { density, jitter, length, kick, snare, hat }
   }, [state.laneB])
 
+  // Sync Lane C delay
+  useEffect(() => {
+    if (!audioReady) return
+    const { delay } = state.laneC
+    if (delay.bpmSync) {
+      audioEngine.setDelayTimeFromBpm(state.bpm, delay.syncDiv)
+      audioEngine.setDelayParams(0 /* ignored */, delay.feedback, delay.tone, delay.returnLevel)
+    } else {
+      audioEngine.setDelayParams(delay.time, delay.feedback, delay.tone, delay.returnLevel)
+    }
+  }, [state.laneC.delay, state.bpm, audioReady])
+
+  // Sync Lane C reverb
+  useEffect(() => {
+    if (!audioReady) return
+    const { reverb } = state.laneC
+    audioEngine.setReverbParams(reverb.size, reverb.decay, reverb.tone, reverb.preDelay, reverb.returnLevel)
+  }, [state.laneC.reverb, audioReady])
+
+  // Sync Lane C send levels
+  useEffect(() => {
+    if (!audioReady) return
+    const { sends } = state.laneC
+    ;(['synth', 'kick', 'snare', 'hat'] as const).forEach(v => {
+      audioEngine.setSendLevel(v, 'delay', sends[v].delay)
+      audioEngine.setSendLevel(v, 'reverb', sends[v].reverb)
+    })
+  }, [state.laneC.sends, audioReady])
+
   // Preset save / load via localStorage
   const save = useCallback(() => {
     localStorage.setItem('groovebox-preset', JSON.stringify(state))

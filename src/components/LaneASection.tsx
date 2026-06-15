@@ -135,7 +135,10 @@ export function LaneASection() {
 
       {/* ── Plaits engine ── */}
       <div className="section">
-        <div className="section-title">Plaits (WASM) — synthesis engine</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+          <span className="section-title" style={{ marginBottom: 0 }}>Plaits (WASM) — synthesis engine</span>
+          <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_SYNTH' })}>⚄</button>
+        </div>
         <div className="mode-tabs">
           {SYNTH_ENGINES.map(idx => (
             <span key={idx}

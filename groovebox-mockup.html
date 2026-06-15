@@ -13,6 +13,7 @@
         --bg-element: #22222f;
         --bg-chip-sel-a: #2a2050;
         --bg-chip-sel-b: #0d2e22;
+        --bg-chip-sel-c: #0d1e35;
 
         --accent-a: #7f77dd; /* purple — Lane A / Synth */
         --accent-a-dim: #534ab7;
@@ -21,6 +22,9 @@
         --accent-b-dim: #0f6e56;
         --accent-b-pale: #5dcaa5;
         --accent-hat: #ba7517; /* amber  — hi-hat */
+        --accent-c: #5b9ee0; /* blue   — Lane C / Effects */
+        --accent-c-dim: #2d6ab5;
+        --accent-c-pale: #90bfed;
 
         --text-primary: #e8e8f0;
         --text-secondary: #8888aa;
@@ -170,6 +174,46 @@
       .tag-b {
         background: var(--bg-chip-sel-b);
         color: var(--accent-b-pale);
+      }
+      .tag-c {
+        background: var(--bg-chip-sel-c);
+        color: var(--accent-c-pale);
+      }
+
+      /* === VOICE RANDOMIZE BUTTON === */
+      .btn-voice-rnd {
+        background: transparent;
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 2px 7px;
+        cursor: pointer;
+        margin-left: auto;
+      }
+      .btn-voice-rnd:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+
+      /* === SEND MATRIX (Lane C) === */
+      .send-matrix {
+        display: grid;
+        grid-template-columns: 80px 1fr 1fr;
+        gap: 6px 8px;
+        align-items: center;
+      }
+      .send-header {
+        font-size: 9px;
+        color: var(--text-muted);
+        text-align: center;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .send-voice-label { font-size: 10px; font-weight: 600; }
+      .send-cell { display: flex; justify-content: center; }
+      .chip-sel-c {
+        background: var(--bg-chip-sel-c);
+        border-color: var(--accent-c-dim);
+        color: var(--accent-c-pale);
       }
       .lane-name {
         font-size: 13px;
@@ -521,7 +565,8 @@
       sequencers). Steps light up when Marbles fires a trigger. Colors:
       <strong style="color: #7f77dd">purple = Lane A (Synth)</strong>,
       <strong style="color: #1d9e75">teal = Lane B (Drums)</strong>,
-      <strong style="color: #ba7517">amber = Hi-Hat</strong>.
+      <strong style="color: #ba7517">amber = Hi-Hat</strong>,
+      <strong style="color: #5b9ee0">blue = Lane C (Effects)</strong>.
     </div>
 
     <div class="groovebox">
@@ -695,7 +740,10 @@
 
         <!-- Plaits synth engine -->
         <div class="section">
-          <div class="section-title">Plaits (WASM) — synthesis engine</div>
+          <div style="display:flex;align-items:center;margin-bottom:10px">
+            <span class="section-title" style="margin-bottom:0">Plaits (WASM) — synthesis engine</span>
+            <button class="btn-voice-rnd">⚄</button>
+          </div>
           <div class="mode-tabs">
             <span class="mtab">VA Osc</span>
             <span class="mtab mtab-sel">FM</span>
@@ -801,6 +849,7 @@
             <div class="dv-header">
               <span class="dv-name" style="color: var(--accent-a)">● Kick</span>
               <span class="dv-prob">Bias 85%</span>
+              <button class="btn-voice-rnd">⚄</button>
             </div>
             <div class="prob-bar">
               <div
@@ -853,6 +902,7 @@
                 >— Snare</span
               >
               <span class="dv-prob">Bias 65%</span>
+              <button class="btn-voice-rnd">⚄</button>
             </div>
             <div class="prob-bar">
               <div
@@ -904,6 +954,7 @@
                 >∿ Hi-Hat</span
               >
               <span class="dv-prob">Bias 55%</span>
+              <button class="btn-voice-rnd">⚄</button>
             </div>
             <div class="prob-bar">
               <div
@@ -961,10 +1012,6 @@
                 <div class="knob knob-hat knob-sm"></div>
                 <div class="knob-label">Tone</div>
               </div>
-              <div class="knob-group">
-                <div class="knob knob-hat knob-sm"></div>
-                <div class="knob-label">Decay</div>
-              </div>
             </div>
             <div class="meters">
               <div class="meter-bar" style="height: 24px">
@@ -973,6 +1020,78 @@
                   style="background: var(--accent-hat); height: 30%"
                 ></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================== LANE C: EFFECTS ======================== -->
+      <div class="lane">
+        <div class="lane-header">
+          <span class="lane-tag tag-c">Lane C</span>
+          <span class="lane-name">Effects — Delay + Reverb (send)</span>
+          <div class="lane-mode">
+            <div class="dot" style="background: var(--accent-c)"></div>
+            Send FX
+          </div>
+        </div>
+
+        <!-- Send matrix -->
+        <div class="section" style="margin-bottom: 10px">
+          <div class="section-title">Send levels — per voice</div>
+          <div class="send-matrix">
+            <div></div>
+            <div class="send-header">Delay</div>
+            <div class="send-header">Reverb</div>
+
+            <div class="send-voice-label" style="color:var(--accent-a-pale)">● Synth</div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.25</div></div></div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.35</div></div></div>
+
+            <div class="send-voice-label" style="color:var(--accent-a-pale)">● Kick</div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.05</div></div></div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.15</div></div></div>
+
+            <div class="send-voice-label" style="color:var(--accent-b-pale)">— Snare</div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.15</div></div></div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.25</div></div></div>
+
+            <div class="send-voice-label" style="color:var(--accent-hat)">∿ Hi-Hat</div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.03</div></div></div>
+            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.08</div></div></div>
+          </div>
+        </div>
+
+        <!-- Delay + Reverb controls -->
+        <div class="two-col">
+          <!-- Delay -->
+          <div class="section">
+            <div class="section-title">Delay</div>
+            <div class="chip-row" style="margin-bottom:8px">
+              <span class="chip chip-sel-c">BPM</span>
+              <span class="chip">1/8</span>
+              <span class="chip">3/16</span>
+              <span class="chip chip-sel-c">3/8</span>
+              <span class="chip">1/4</span>
+              <span class="chip">1/2</span>
+              <span class="chip">Free</span>
+            </div>
+            <div class="knob-row">
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Feedback</div><div class="knob-val">0.40</div></div>
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Tone</div><div class="knob-val">0.70</div></div>
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Return</div><div class="knob-val">0.60</div></div>
+            </div>
+          </div>
+
+          <!-- Reverb -->
+          <div class="section">
+            <div class="section-title">Reverb (convolution)</div>
+            <div class="knob-row">
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Size</div><div class="knob-val">0.60</div></div>
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Decay</div><div class="knob-val">0.50</div></div>
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Tone</div><div class="knob-val">0.60</div></div>
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Pre-dly</div><div class="knob-val">20ms</div></div>
+              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Return</div><div class="knob-val">0.50</div></div>
             </div>
           </div>
         </div>

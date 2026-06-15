@@ -22,9 +22,11 @@ and three Plaits drum voices driven by a probabilistic rhythm generator.
 
 - **Lane A — Synth**: Marbles-inspired generative pitch sequencer (TypeScript) driving a Plaits WASM synthesizer voice
 - **Lane B — Drums**: Marbles-inspired probabilistic rhythm generator driving three Plaits drum voices (Kick, Snare, Hi-Hat)
+- **Lane C — Effects**: Send-based delay (BPM-sync or free) and convolution reverb with synthetically generated impulse response; each voice has independent delay and reverb send levels
 - **Shared master clock**: `AudioContext.currentTime`-based lookahead scheduler (100 ms window, 25 ms interval)
 - **Generative sequencing**: Independent t (timing) and x (pitch) generators with `deja_vu` loop control
-- **Preset system**: Save/load all parameters as JSON via `localStorage` *(planned)*
+- **Per-voice randomize**: Each voice card has a ⚄ button that randomizes its synthesis parameters independently (not sequencer/rhythm parameters)
+- **Preset system**: Save/load all parameters as JSON via `localStorage`
 
 ---
 
@@ -111,10 +113,21 @@ React UI (main thread)
         │     └── MarblesT / MarblesX (TypeScript, main thread)
         │           └── audioEngine.triggerSynth / triggerKick / triggerSnare / triggerHat(when)
         │
-        └── AudioParam setters (linearRampToValueAtTime for click-free knob changes)
-              └── AudioWorkletNode (@vectorsize/woscillators)
-                    └── Plaits WASM (render() per audio block, off main thread)
+        ├── AudioParam setters (linearRampToValueAtTime for click-free knob changes)
+        │     └── AudioWorkletNode (@vectorsize/woscillators)
+        │           └── Plaits WASM (render() per audio block, off main thread)
+        │
+        └── Lane C effects bus
+              ├── Voice AnalyserNode → per-voice send GainNodes → DelayNode chain → masterGain
+              └── Voice AnalyserNode → per-voice send GainNodes → ConvolverNode (synth IR) → masterGain
 ```
+
+Send effects architecture:
+- Each voice output (post-analyser) connects to two send `GainNode`s (delay send, reverb send)
+- All delay sends merge into a shared `DelayNode → BiquadFilter (tone) → feedback GainNode` loop
+- All reverb sends merge into a shared `DelayNode (pre-delay) → ConvolverNode → BiquadFilter (tone)`
+- Reverb IR is generated algorithmically (stereo decaying noise, no audio file required)
+- Both effects return to `masterGain` at independently adjustable return levels
 
 State is split strictly:
 
@@ -153,7 +166,8 @@ src/
 - [x] **Phase 3** — Marbles sequencer: logistic map, t-generator, x-generator, Lane A wired end-to-end
 - [x] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
 - [x] **Phase 5** — Full UI: SVG Knob component, Transport bar, LaneA/LaneB panels, oscilloscope, peak meters, reactive step grids, scale/mode selectors, preset save/load via localStorage, useReducer + Context state management
-- [ ] **Phase 6** — Polish: parameter smoothing, global randomize, Electron/Tauri wrapper
+- [ ] **Phase 6** — Lane C effects: send delay (BPM-sync + free, with feedback and tone filter), convolution reverb (algorithmically generated IR, size/decay/tone/pre-delay controls), 4×2 send matrix; per-voice ⚄ randomize buttons on all four voices
+- [ ] **Phase 7** — Polish: parameter smoothing, Electron/Tauri wrapper
 
 ---
 
