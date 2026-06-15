@@ -278,7 +278,8 @@ class AudioEngine {
     if (!this.ctx || !this.delayNode || !this.delayFilter || !this.delayFeedback || !this.delayReturn) return
     const t = this.ctx.currentTime + 0.016
     this.delayNode.delayTime.linearRampToValueAtTime(Math.min(time, 1.999), t)
-    this.delayFeedback.gain.linearRampToValueAtTime(feedback, t)
+    // Hard cap at 0.90 — values above this cause runaway self-oscillation
+    this.delayFeedback.gain.linearRampToValueAtTime(Math.min(feedback, 0.90), t)
     this.delayFilter.frequency.linearRampToValueAtTime(toneToHz(tone), t)
     this.delayReturn.gain.linearRampToValueAtTime(returnLevel, t)
   }

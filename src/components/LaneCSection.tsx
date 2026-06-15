@@ -91,9 +91,9 @@ export function LaneCSection() {
                 defaultValue={0.2} color={C} label="Time" valueLabel={`${delay.time.toFixed(3)}s`}
               />
             )}
-            <Knob value={delay.feedback}
-              onChange={v => dispatch({ type: 'PATCH_LANE_C_DELAY', patch: { feedback: v } })}
-              defaultValue={0.4} color={C} label="Feedback" valueLabel={fmt(delay.feedback)} />
+            <Knob value={delay.feedback / 0.9}
+              onChange={v => dispatch({ type: 'PATCH_LANE_C_DELAY', patch: { feedback: v * 0.9 } })}
+              defaultValue={0.4 / 0.9} color={C} label="Feedback" valueLabel={fmt(delay.feedback)} />
             <Knob value={delay.tone}
               onChange={v => dispatch({ type: 'PATCH_LANE_C_DELAY', patch: { tone: v } })}
               defaultValue={0.7} color={C} label="Tone" valueLabel={fmt(delay.tone)} />
