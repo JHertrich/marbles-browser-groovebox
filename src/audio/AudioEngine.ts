@@ -162,7 +162,8 @@ function toneToHz(t: number): number { return 400 * Math.pow(15, t) }
 
 class AudioEngine {
   private ctx: AudioContext | null = null
-  private synthVoice: WoscNode | null = null
+  private synthVoices: WoscNode[] = []
+  private synthVoiceIdx = 0
   private kickVoice: WoscNode | null = null
   private snareVoice: WoscNode | null = null
   private hatVoice: WoscNode | null = null
@@ -293,13 +294,16 @@ class AudioEngine {
     this.synthAnalyser.connect(this.synthDelaySend);  this.synthDelaySend.connect(this.delayInput)
     this.synthAnalyser.connect(this.synthReverbSend); this.synthReverbSend.connect(this.reverbPreDelay)
 
-    this.synthVoice = wosc.createOscillator() as WoscNode
-    this.synthVoice.engine = 2
-    this.synthVoice.modTriggerPatched = 1
-    this.synthVoice.volume = 0.8
-    this.synthVoice.connect(this.synthMuteGain)
+    for (let i = 0; i < 4; i++) {
+      const v = wosc.createOscillator() as WoscNode
+      v.engine = 2
+      v.modTriggerPatched = 1
+      v.volume = 0.8
+      v.connect(this.synthMuteGain)
+      v.start()
+      this.synthVoices.push(v)
+    }
     this.synthMuteGain.connect(this.synthAnalyser)
-    this.synthVoice.start()
 
     // Granular sampler: tap from synthAnalyser (native AudioNode, reliable fan-out)
     // synthVoice is a WoscNode wrapper whose connect() may not route to AudioWorkletNode inputs
@@ -417,30 +421,33 @@ class AudioEngine {
   // ─── Synth ────────────────────────────────────────────────────────────────
 
   triggerSynth(midiNote: number, params: SynthParams, when = 0): void {
-    if (!this.synthVoice || !this.ctx) return
-    const t = this.ctx.currentTime + when + 0.016  // one frame ramp
+    if (!this.synthVoices.length || !this.ctx) return
+    const voice = this.synthVoices[this.synthVoiceIdx % 4]
+    this.synthVoiceIdx = (this.synthVoiceIdx + 1) % 4
+    const t = this.ctx.currentTime + when + 0.016
 
-    this.synthVoice.note = midiNote
-    this.synthVoice.engine = params.engine
+    voice.note = midiNote
+    voice.engine = params.engine
+    voice.timbreAudioParameter.linearRampToValueAtTime(params.timbre, t)
+    voice.morphAudioParameter.linearRampToValueAtTime(params.morph, t)
+    voice.harmonicsAudioParameter.linearRampToValueAtTime(params.harmonics, t)
+    voice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
+    voice.volumeAudioParameter.linearRampToValueAtTime(params.level, t)
 
-    this.synthVoice.timbreAudioParameter.linearRampToValueAtTime(params.timbre, t)
-    this.synthVoice.morphAudioParameter.linearRampToValueAtTime(params.morph, t)
-    this.synthVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.harmonics, t)
-    this.synthVoice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
-    this.synthVoice.volumeAudioParameter.linearRampToValueAtTime(params.level, t)
-
-    this.fireTrigger(this.synthVoice, when)
+    this.fireTrigger(voice, when)
   }
 
   setSynthParams(params: SynthParams): void {
-    if (!this.synthVoice || !this.ctx) return
+    if (!this.synthVoices.length || !this.ctx) return
     const t = this.ctx.currentTime + 0.016
-    this.synthVoice.engine = params.engine
-    this.synthVoice.timbreAudioParameter.linearRampToValueAtTime(params.timbre, t)
-    this.synthVoice.morphAudioParameter.linearRampToValueAtTime(params.morph, t)
-    this.synthVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.harmonics, t)
-    this.synthVoice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
-    this.synthVoice.volumeAudioParameter.linearRampToValueAtTime(params.level, t)
+    this.synthVoices.forEach(v => {
+      v.engine = params.engine
+      v.timbreAudioParameter.linearRampToValueAtTime(params.timbre, t)
+      v.morphAudioParameter.linearRampToValueAtTime(params.morph, t)
+      v.harmonicsAudioParameter.linearRampToValueAtTime(params.harmonics, t)
+      v.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
+      v.volumeAudioParameter.linearRampToValueAtTime(params.level, t)
+    })
   }
 
   // ─── Drums ────────────────────────────────────────────────────────────────
@@ -569,11 +576,11 @@ class AudioEngine {
     const c = (v: number) => Math.max(0, Math.min(1, v))
     const cv = c(value)
     switch (dest) {
-      case 'synth.timbre':    this.synthVoice?.timbreAudioParameter.setValueAtTime(cv, t); break
-      case 'synth.morph':     this.synthVoice?.morphAudioParameter.setValueAtTime(cv, t); break
-      case 'synth.harmonics': this.synthVoice?.harmonicsAudioParameter.setValueAtTime(cv, t); break
-      case 'synth.decay':     this.synthVoice?.decayAudioParameter.setValueAtTime(cv, t); break
-      case 'synth.level':     this.synthVoice?.volumeAudioParameter.setValueAtTime(cv, t); break
+      case 'synth.timbre':    this.synthVoices.forEach(v => v.timbreAudioParameter.setValueAtTime(cv, t)); break
+      case 'synth.morph':     this.synthVoices.forEach(v => v.morphAudioParameter.setValueAtTime(cv, t)); break
+      case 'synth.harmonics': this.synthVoices.forEach(v => v.harmonicsAudioParameter.setValueAtTime(cv, t)); break
+      case 'synth.decay':     this.synthVoices.forEach(v => v.decayAudioParameter.setValueAtTime(cv, t)); break
+      case 'synth.level':     this.synthVoices.forEach(v => v.volumeAudioParameter.setValueAtTime(cv, t)); break
       case 'gran.position':   this.granularNode?.parameters.get('position')?.setValueAtTime(cv, t); break
       case 'gran.size':       this.granularNode?.parameters.get('size')?.setValueAtTime(cv, t); break
       case 'gran.density':    this.granularNode?.parameters.get('density')?.setValueAtTime(cv, t); break
@@ -611,7 +618,9 @@ class AudioEngine {
   suspend(): void { this.ctx?.suspend() }
 
   dispose(): void {
-    this.synthVoice?.dispose()
+    this.synthVoices.forEach(v => v.dispose())
+    this.synthVoices = []
+    this.synthVoiceIdx = 0
     this.kickVoice?.dispose()
     this.snareVoice?.dispose()
     this.hatVoice?.dispose()

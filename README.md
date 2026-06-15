@@ -19,7 +19,7 @@ Three synchronized lanes — a Plaits synthesizer sequenced by Marbles, three Pl
 
 ## Features
 
-- **Lane A — Synth**: Marbles-inspired generative pitch sequencer driving a Plaits WASM synthesizer voice; t-section controls timing/rhythm, x-section controls pitch/scale with root note and scale mode
+- **Lane A — Synth**: Marbles-inspired generative pitch sequencer driving a **4-voice polyphonic** Plaits WASM synthesizer (round-robin voice allocation); t-section controls timing/rhythm, x-section controls pitch/scale with root note and scale mode
 - **Lane B — Drums**: Marbles-inspired probabilistic rhythm generator driving three Plaits drum voices:
   - **Kick** — engine 13; Tune, Snap, Decay
   - **Snare** — engine 14; Snap (noise/body balance), Tone (body+noise frequency), Body (resonance), Decay
