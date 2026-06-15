@@ -151,9 +151,9 @@ src/
 - [x] **Phase 1** — Vite + React + TypeScript scaffold
 - [x] **Phase 2** — Plaits WASM audio engine: 4 voices (synth + kick + snare + hat), Vite ESM fix
 - [x] **Phase 3** — Marbles sequencer: logistic map, t-generator, x-generator, Lane A wired end-to-end
-- [ ] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
-- [ ] **Phase 5** — Full UI: Knob components, oscilloscope, peak meters, trigger history grids
-- [ ] **Phase 6** — Polish: global randomize, Electron/Tauri wrapper, preset save/load
+- [x] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
+- [x] **Phase 5** — Full UI: SVG Knob component, Transport bar, LaneA/LaneB panels, oscilloscope, peak meters, reactive step grids, scale/mode selectors, preset save/load via localStorage, useReducer + Context state management
+- [ ] **Phase 6** — Polish: parameter smoothing, global randomize, Electron/Tauri wrapper
 
 ---
 

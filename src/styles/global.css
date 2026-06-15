@@ -55,3 +55,93 @@ button {
 input[type="range"] {
   accent-color: var(--accent-a);
 }
+
+/* === APP SHELL === */
+.groovebox { max-width: 860px; margin: 0 auto; }
+
+/* === TRANSPORT === */
+.transport { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-lane); border: 0.5px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; }
+.transport-left { display: flex; align-items: center; gap: 16px; }
+.app-title { font-size: 11px; letter-spacing: 0.18em; color: var(--text-secondary); text-transform: uppercase; }
+.bpm-group { display: flex; align-items: baseline; gap: 5px; }
+.bpm-value { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+.bpm-label { font-size: 11px; color: var(--text-muted); }
+.transport-btns { display: flex; gap: 6px; }
+.btn { background: var(--bg-element); border: 0.5px solid var(--border-hover); border-radius: var(--radius-sm); color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; padding: 5px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--accent-a); color: var(--accent-a-pale); }
+.btn-play { background: var(--accent-a-dim); border-color: var(--accent-a); color: var(--accent-a-pale); }
+.btn-play.btn-stop { background: #3a1010; border-color: #cc4444; color: #ff8888; }
+.btn-rnd { border-color: var(--accent-a-dim); color: var(--accent-a); }
+
+/* === LANE === */
+.lane { background: var(--bg-lane); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }
+.lane-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 0.5px solid var(--border); }
+.lane-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: var(--radius-sm); }
+.tag-a { background: var(--bg-chip-sel-a); color: var(--accent-a-pale); }
+.tag-b { background: var(--bg-chip-sel-b); color: var(--accent-b-pale); }
+.lane-name { font-size: 13px; color: var(--text-primary); }
+.lane-mode { margin-left: auto; font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* === LAYOUT === */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+
+/* === SECTION === */
+.section { background: var(--bg-section); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px; }
+.section-title { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+.section-sep { height: 0.5px; background: var(--border); margin: 10px 0; }
+
+/* === KNOBS === */
+.knob-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.knob-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.knob-label { font-size: 9px; color: var(--text-muted); text-align: center; }
+.knob-val { font-size: 9px; color: var(--text-secondary); }
+
+/* === STEP GRID === */
+.steps-row { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 6px; }
+.step { width: 18px; height: 14px; border-radius: 3px; border: 0.5px solid var(--border); background: var(--bg-element); position: relative; transition: background 0.05s, border-color 0.05s; }
+.step-annotation { font-size: 8px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+
+/* === DEJA VU BAR === */
+.deja-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.deja-label { font-size: 9px; color: var(--text-muted); white-space: nowrap; }
+.deja-track { flex: 1; height: 3px; border-radius: 2px; background: var(--bg-element); }
+.deja-pct { font-size: 9px; color: var(--text-secondary); }
+
+/* === PITCH BARS === */
+.pitch-bars { display: flex; gap: 2px; align-items: flex-end; height: 38px; margin: 6px 0; }
+.pb { flex: 1; border-radius: 2px 2px 0 0; background: rgba(127, 119, 221, 0.35); min-width: 10px; transition: height 0.1s; }
+.pb-active { background: var(--accent-a); }
+
+/* === CHIP SELECTORS === */
+.chip-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+.chip { font-size: 9px; padding: 3px 7px; border-radius: 3px; border: 0.5px solid var(--border); background: var(--bg-element); color: var(--text-muted); cursor: pointer; }
+.chip:hover { border-color: var(--accent-a-dim); color: var(--accent-a-pale); }
+.chip-sel-a { background: var(--bg-chip-sel-a); border-color: var(--accent-a-dim); color: var(--accent-a-pale); }
+
+/* === MODE TABS === */
+.mode-tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.mtab { font-size: 9px; padding: 3px 9px; border-radius: 3px; border: 0.5px solid var(--border); background: var(--bg-element); color: var(--text-muted); cursor: pointer; }
+.mtab:hover { border-color: var(--accent-a-dim); }
+.mtab-sel { background: var(--accent-a-dim); border-color: var(--accent-a); color: var(--accent-a-pale); }
+
+/* === OSCILLOSCOPE === */
+.oscilloscope { height: 40px; background: var(--bg-element); border-radius: var(--radius-sm); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; margin-top: 8px; overflow: hidden; position: relative; }
+.osc-label { position: absolute; font-size: 8px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.5; }
+
+/* === DRUM VOICES === */
+.drum-voices { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+.dv { background: var(--bg-section); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 10px; }
+.dv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dv-name { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; }
+.dv-prob { font-size: 9px; color: var(--text-secondary); }
+.prob-bar { height: 3px; border-radius: 2px; background: var(--bg-element); margin: 4px 0 8px; }
+.prob-fill { height: 100%; border-radius: 2px; transition: width 0.1s; }
+
+/* === PEAK METERS === */
+.meters { display: flex; gap: 4px; height: 28px; align-items: flex-end; margin-top: 8px; }
+.meter-bar { flex: 1; border-radius: 2px 2px 0 0; background: var(--bg-element); position: relative; overflow: hidden; }
+.meter-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 2px 2px 0 0; transition: height 0.05s; }
+
+/* === FOOTER === */
+.footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--border); }
