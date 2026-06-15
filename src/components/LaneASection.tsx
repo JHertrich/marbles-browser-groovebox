@@ -53,7 +53,10 @@ export function LaneASection() {
       <div className="two-col">
         {/* ── t-section ── */}
         <div className="section">
-          <div className="section-title">Marbles — timing (t)</div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+            <span className="section-title" style={{ marginBottom: 0 }}>Marbles — timing (t)</span>
+            <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_LANE_A_T' })}>⚄</button>
+          </div>
           <div className="knob-row">
             <Knob value={(t.rate - 1) / 7} onChange={v => dispatch({ type: 'PATCH_LANE_A_T', patch: { rate: Math.round(1 + v * 7) } })}
               defaultValue={1 / 7} color={A} label="Rate" valueLabel={`÷${t.rate}`} />
@@ -84,7 +87,10 @@ export function LaneASection() {
 
         {/* ── x-section ── */}
         <div className="section">
-          <div className="section-title">Marbles — pitch (x)</div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+            <span className="section-title" style={{ marginBottom: 0 }}>Marbles — pitch (x)</span>
+            <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_LANE_A_X' })}>⚄</button>
+          </div>
 
           {/* Scale mode chips */}
           <div className="chip-row">

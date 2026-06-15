@@ -49,7 +49,10 @@ export function LaneBSection() {
 
       {/* ── Shared rhythm section ── */}
       <div className="section" style={{ marginBottom: 10 }}>
-        <div className="section-title">Marbles — rhythm generator (3 trigger outputs)</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+          <span className="section-title" style={{ marginBottom: 0 }}>Marbles — rhythm generator (3 trigger outputs)</span>
+          <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_LANE_B_RHYTHM' })}>⚄</button>
+        </div>
         <div className="knob-row">
           <Knob value={density} onChange={v => dispatch({ type: 'PATCH_LANE_B', patch: { density: v } })}
             defaultValue={0.7} color={B} label="Density" valueLabel={fmt(density)} />

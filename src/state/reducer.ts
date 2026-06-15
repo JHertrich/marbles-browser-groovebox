@@ -20,6 +20,9 @@ export type Action =
   | { type: 'RANDOMIZE_KICK' }
   | { type: 'RANDOMIZE_SNARE' }
   | { type: 'RANDOMIZE_HAT' }
+  | { type: 'RANDOMIZE_LANE_A_T' }
+  | { type: 'RANDOMIZE_LANE_A_X' }
+  | { type: 'RANDOMIZE_LANE_B_RHYTHM' }
   | { type: 'RANDOMIZE_DELAY' }
   | { type: 'RANDOMIZE_REVERB' }
   | { type: 'RESET' }
@@ -113,10 +116,52 @@ export function reducer(state: AppState, action: Action): AppState {
         laneA: {
           ...state.laneA,
           synth: {
-            ...state.laneA.synth,
-            timbre: Math.random(), morph: Math.random(), harmonics: Math.random(),
-            decay: 0.2 + Math.random() * 0.8, level: 0.4 + Math.random() * 0.6,
+            engine: pick([0, 1, 2, 4, 6] as const),
+            timbre: rnd(), morph: rnd(), harmonics: rnd(),
+            decay: 0.2 + rnd() * 0.8, level: 0.4 + rnd() * 0.6,
           },
+        },
+      }
+    case 'RANDOMIZE_LANE_A_T':
+      return {
+        ...state,
+        laneA: {
+          ...state.laneA,
+          t: {
+            rate: Math.ceil(rnd() * 8),
+            jitter: rnd() * 0.6,
+            gate: 0.2 + rnd() * 0.7,
+            bias: 0.3 + rnd() * 0.7,
+            dejaVu: rnd() * 0.8,
+            length: 4 + Math.floor(rnd() * 29),
+          },
+        },
+      }
+    case 'RANDOMIZE_LANE_A_X':
+      return {
+        ...state,
+        laneA: {
+          ...state.laneA,
+          x: {
+            ...state.laneA.x,
+            spread: 0.2 + rnd() * 0.8,
+            bias: rnd(),
+            steps: 1 + Math.floor(rnd() * 8),
+            dejaVu: rnd() * 0.8,
+            length: 4 + Math.floor(rnd() * 29),
+            root: pick(ROOT_NOTES),
+            mode: pick(SCALE_MODE_NAMES),
+          },
+        },
+      }
+    case 'RANDOMIZE_LANE_B_RHYTHM':
+      return {
+        ...state,
+        laneB: {
+          ...state.laneB,
+          density: 0.3 + rnd() * 0.7,
+          jitter: rnd() * 0.5,
+          length: 4 + Math.floor(rnd() * 29),
         },
       }
     case 'RANDOMIZE_KICK':
