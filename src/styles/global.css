@@ -1,0 +1,57 @@
+/* === DESIGN TOKENS (from groovebox-mockup.html) === */
+:root {
+  --bg-app: #0a0a0f;
+  --bg-lane: #111118;
+  --bg-section: #1a1a24;
+  --bg-element: #22222f;
+  --bg-chip-sel-a: #2a2050;
+  --bg-chip-sel-b: #0d2e22;
+
+  --accent-a: #7f77dd;       /* purple — Lane A / Synth */
+  --accent-a-dim: #534ab7;
+  --accent-a-pale: #afa9ec;
+  --accent-b: #1d9e75;       /* teal   — Lane B / Drums */
+  --accent-b-dim: #0f6e56;
+  --accent-b-pale: #5dcaa5;
+  --accent-hat: #ba7517;     /* amber  — hi-hat */
+
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-muted: #55556a;
+
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.14);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --font-mono: "JetBrains Mono", "Fira Mono", "Menlo", monospace;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+input[type="range"] {
+  accent-color: var(--accent-a);
+}

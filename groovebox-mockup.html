@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Groovebox — UI Mockup</title>
+    <style>
+      /* === DESIGN TOKENS === */
+      :root {
+        --bg-app: #0a0a0f;
+        --bg-lane: #111118;
+        --bg-section: #1a1a24;
+        --bg-element: #22222f;
+        --bg-chip-sel-a: #2a2050;
+        --bg-chip-sel-b: #0d2e22;
+
+        --accent-a: #7f77dd; /* purple — Lane A / Synth */
+        --accent-a-dim: #534ab7;
+        --accent-a-pale: #afa9ec;
+        --accent-b: #1d9e75; /* teal   — Lane B / Drums */
+        --accent-b-dim: #0f6e56;
+        --accent-b-pale: #5dcaa5;
+        --accent-hat: #ba7517; /* amber  — hi-hat */
+
+        --text-primary: #e8e8f0;
+        --text-secondary: #8888aa;
+        --text-muted: #55556a;
+
+        --border: rgba(255, 255, 255, 0.07);
+        --border-hover: rgba(255, 255, 255, 0.14);
+
+        --radius-sm: 4px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+
+        --font-mono: "JetBrains Mono", "Fira Mono", "Menlo", monospace;
+        --font-sans: "Inter", system-ui, sans-serif;
+      }
+
+      /* === RESET === */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg-app);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      /* === ANNOTATION BANNER === */
+      .annotation-banner {
+        background: #1a1612;
+        border: 0.5px solid #3a2e18;
+        border-radius: var(--radius-md);
+        padding: 10px 16px;
+        margin-bottom: 20px;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        color: #9a8060;
+        line-height: 1.6;
+      }
+      .annotation-banner strong {
+        color: #c4a060;
+      }
+
+      /* === APP SHELL === */
+      .groovebox {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      /* === TRANSPORT BAR === */
+      .transport {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: var(--bg-lane);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        margin-bottom: 12px;
+      }
+      .transport-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .app-title {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+      }
+      .bpm-group {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+      }
+      .bpm-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
+      .bpm-label {
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .transport-btns {
+        display: flex;
+        gap: 6px;
+      }
+      .btn {
+        background: var(--bg-element);
+        border: 0.5px solid var(--border-hover);
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 5px 12px;
+        cursor: pointer;
+      }
+      .btn-play {
+        background: var(--accent-a-dim);
+        border-color: var(--accent-a);
+        color: var(--accent-a-pale);
+      }
+      .btn-rnd {
+        border-color: var(--accent-a-dim);
+        color: var(--accent-a);
+      }
+
+      /* === LANE WRAPPER === */
+      .lane {
+        background: var(--bg-lane);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .lane-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 0.5px solid var(--border);
+      }
+      .lane-tag {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: var(--radius-sm);
+      }
+      .tag-a {
+        background: var(--bg-chip-sel-a);
+        color: var(--accent-a-pale);
+      }
+      .tag-b {
+        background: var(--bg-chip-sel-b);
+        color: var(--accent-b-pale);
+      }
+      .lane-name {
+        font-size: 13px;
+        color: var(--text-primary);
+      }
+      .lane-mode {
+        margin-left: auto;
+        font-size: 10px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+      }
+
+      /* === TWO-COLUMN LAYOUT === */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      /* === SECTION BOX === */
+      .section {
+        background: var(--bg-section);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 12px;
+      }
+      .section-title {
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+      .section-sep {
+        height: 0.5px;
+        background: var(--border);
+        margin: 10px 0;
+      }
+
+      /* === KNOBS === */
+      .knob-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+      }
+      .knob-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .knob {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--bg-element);
+        border: 0.5px solid var(--border-hover);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .knob::after {
+        content: "";
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        top: 5px;
+      }
+      .knob-a::after {
+        background: var(--accent-a);
+      }
+      .knob-b::after {
+        background: var(--accent-b);
+      }
+      .knob-hat::after {
+        background: var(--accent-hat);
+        transform: rotate(30deg) translateY(-2px);
+      }
+
+      .knob-label {
+        font-size: 9px;
+        color: var(--text-muted);
+        text-align: center;
+      }
+      .knob-val {
+        font-size: 9px;
+        color: var(--text-secondary);
+      }
+
+      /* small knobs for drum voices */
+      .knob-sm {
+        width: 28px;
+        height: 28px;
+      }
+
+      /* === STEP GRID (read-only reactive display) === */
+      .steps-row {
+        display: flex;
+        gap: 3px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .step {
+        width: 18px;
+        height: 14px;
+        border-radius: 3px;
+        border: 0.5px solid var(--border);
+        background: var(--bg-element);
+        position: relative;
+      }
+      .step-annotation {
+        font-size: 8px;
+        color: var(--text-muted);
+        margin-top: 4px;
+        font-style: italic;
+      }
+      /* Lane A states */
+      .step.a-fired {
+        background: rgba(127, 119, 221, 0.25);
+        border-color: var(--accent-a-pale);
+      }
+      .step.a-current {
+        background: var(--accent-a-dim);
+        border-color: var(--accent-a);
+      }
+      /* Lane B states */
+      .step.b-fired {
+        background: rgba(29, 158, 117, 0.2);
+        border-color: var(--accent-b-pale);
+      }
+      .step.b-current {
+        background: var(--accent-b-dim);
+        border-color: var(--accent-b);
+      }
+
+      /* === DEJA VU BAR === */
+      .deja-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .deja-label {
+        font-size: 9px;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .deja-track {
+        flex: 1;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--bg-element);
+      }
+      .deja-fill-a {
+        height: 100%;
+        border-radius: 2px;
+        background: var(--accent-a);
+        width: 40%;
+      }
+      .deja-fill-b {
+        height: 100%;
+        border-radius: 2px;
+        background: var(--accent-b);
+        width: 60%;
+      }
+      .deja-pct {
+        font-size: 9px;
+        color: var(--text-secondary);
+      }
+
+      /* === PITCH BARS (X-section visualization) === */
+      .pitch-bars {
+        display: flex;
+        gap: 2px;
+        align-items: flex-end;
+        height: 38px;
+        margin: 6px 0;
+      }
+      .pb {
+        flex: 1;
+        border-radius: 2px 2px 0 0;
+        background: rgba(127, 119, 221, 0.35);
+        min-width: 10px;
+      }
+      .pb-active {
+        background: var(--accent-a);
+      }
+
+      /* === CHIP SELECTORS (scale/mode) === */
+      .chip-row {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+      }
+      .chip {
+        font-size: 9px;
+        padding: 3px 7px;
+        border-radius: 3px;
+        border: 0.5px solid var(--border);
+        background: var(--bg-element);
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .chip-sel-a {
+        background: var(--bg-chip-sel-a);
+        border-color: var(--accent-a-dim);
+        color: var(--accent-a-pale);
+      }
+
+      /* === MODE TABS (Plaits engine) === */
+      .mode-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .mtab {
+        font-size: 9px;
+        padding: 3px 9px;
+        border-radius: 3px;
+        border: 0.5px solid var(--border);
+        background: var(--bg-element);
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .mtab-sel {
+        background: var(--accent-a-dim);
+        border-color: var(--accent-a);
+        color: var(--accent-a-pale);
+      }
+
+      /* === OSCILLOSCOPE placeholder === */
+      .oscilloscope {
+        height: 40px;
+        background: var(--bg-element);
+        border-radius: var(--radius-sm);
+        border: 0.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 8px;
+        overflow: hidden;
+        position: relative;
+      }
+      .osc-label {
+        position: absolute;
+        font-size: 8px;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .osc-wave {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0.5;
+      }
+
+      /* === DRUM VOICES GRID === */
+      .drum-voices {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .dv {
+        background: var(--bg-section);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 10px;
+      }
+      .dv-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .dv-name {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+      }
+      .dv-prob {
+        font-size: 9px;
+        color: var(--text-secondary);
+      }
+      .prob-bar {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--bg-element);
+        margin: 4px 0 8px;
+      }
+      .prob-fill {
+        height: 100%;
+        border-radius: 2px;
+      }
+
+      /* === PEAK METERS === */
+      .meters {
+        display: flex;
+        gap: 4px;
+        height: 28px;
+        align-items: flex-end;
+        margin-top: 8px;
+      }
+      .meter-bar {
+        flex: 1;
+        border-radius: 2px 2px 0 0;
+        background: var(--bg-element);
+        position: relative;
+        overflow: hidden;
+      }
+      .meter-fill {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 2px 2px 0 0;
+      }
+
+      /* === FOOTER === */
+      .footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 0.5px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="annotation-banner">
+      <strong>Claude Code reference mockup</strong> — This file is a static
+      visual reference for the Groovebox React app. Step grids are
+      <strong>read-only reactive displays</strong> (not editable step
+      sequencers). Steps light up when Marbles fires a trigger. Colors:
+      <strong style="color: #7f77dd">purple = Lane A (Synth)</strong>,
+      <strong style="color: #1d9e75">teal = Lane B (Drums)</strong>,
+      <strong style="color: #ba7517">amber = Hi-Hat</strong>.
+    </div>
+
+    <div class="groovebox">
+      <!-- TRANSPORT -->
+      <div class="transport">
+        <div class="transport-left">
+          <span class="app-title">Groovebox</span>
+          <div class="bpm-group">
+            <span class="bpm-value">124</span>
+            <span class="bpm-label">BPM</span>
+          </div>
+          <input
+            type="range"
+            min="60"
+            max="200"
+            value="124"
+            style="width: 100px; accent-color: var(--accent-a)"
+          />
+        </div>
+        <div class="transport-btns">
+          <button class="btn">RST</button>
+          <button class="btn btn-play">▶ RUN</button>
+          <button class="btn btn-rnd">⚄ RANDOM</button>
+          <button class="btn">SAVE</button>
+          <button class="btn">LOAD</button>
+        </div>
+      </div>
+
+      <!-- ======================== LANE A: SYNTH ======================== -->
+      <div class="lane">
+        <div class="lane-header">
+          <span class="lane-tag tag-a">Lane A</span>
+          <span class="lane-name">Plaits Synth + Marbles Sequencer</span>
+          <div class="lane-mode">
+            <div class="dot" style="background: var(--accent-a)"></div>
+            FM Synthesis
+          </div>
+        </div>
+
+        <div class="two-col">
+          <!-- Marbles t-section -->
+          <div class="section">
+            <div class="section-title">Marbles — timing (t)</div>
+            <div class="knob-row">
+              <div class="knob-group">
+                <div class="knob knob-a" style="--r: 0deg"></div>
+                <div class="knob-label">Rate</div>
+                <div class="knob-val">÷4</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a"></div>
+                <div class="knob-label">Jitter</div>
+                <div class="knob-val">0.3</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a"></div>
+                <div class="knob-label">Gate</div>
+                <div class="knob-val">0.5</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a"></div>
+                <div class="knob-label">Bias</div>
+                <div class="knob-val">0.6</div>
+              </div>
+            </div>
+
+            <div class="section-sep"></div>
+
+            <!-- Step grid: read-only reactive display -->
+            <div class="section-title" style="margin-bottom: 4px">
+              Trigger history (reactive, not editable)
+            </div>
+            <div class="steps-row">
+              <div class="step a-fired"></div>
+              <div class="step"></div>
+              <div class="step a-fired"></div>
+              <div class="step a-current"></div>
+              <div class="step a-fired"></div>
+              <div class="step"></div>
+              <div class="step a-fired"></div>
+              <div class="step"></div>
+              <div class="step a-fired"></div>
+              <div class="step a-fired"></div>
+              <div class="step"></div>
+              <div class="step a-fired"></div>
+              <div class="step"></div>
+              <div class="step a-fired"></div>
+              <div class="step a-fired"></div>
+              <div class="step"></div>
+            </div>
+            <div class="step-annotation">
+              ↑ lights up when Marbles fires — not user-programmable
+            </div>
+
+            <div class="deja-row">
+              <span class="deja-label">Deja vu (t)</span>
+              <div class="deja-track"><div class="deja-fill-a"></div></div>
+              <span class="deja-pct">40%</span>
+            </div>
+          </div>
+
+          <!-- Marbles x-section -->
+          <div class="section">
+            <div class="section-title">Marbles — pitch (x)</div>
+
+            <!-- Scale selector -->
+            <div class="chip-row">
+              <span class="chip chip-sel-a">Dorian</span>
+              <span class="chip">Mixolyd.</span>
+              <span class="chip">Phrygian</span>
+              <span class="chip">Minor Pent.</span>
+            </div>
+            <div class="chip-row" style="margin-bottom: 8px">
+              <span class="chip chip-sel-a">C</span>
+              <span class="chip">D</span><span class="chip">E</span>
+              <span class="chip">F</span><span class="chip">G</span>
+              <span class="chip">A</span><span class="chip">B</span>
+            </div>
+
+            <!-- Live pitch visualization -->
+            <div class="section-title" style="margin-bottom: 2px">
+              Current pitch sequence (live)
+            </div>
+            <div class="pitch-bars">
+              <div class="pb" style="height: 18px"></div>
+              <div class="pb" style="height: 30px"></div>
+              <div class="pb pb-active" style="height: 38px"></div>
+              <div class="pb" style="height: 22px"></div>
+              <div class="pb" style="height: 28px"></div>
+              <div class="pb pb-active" style="height: 38px"></div>
+              <div class="pb" style="height: 14px"></div>
+              <div class="pb" style="height: 20px"></div>
+              <div class="pb" style="height: 32px"></div>
+              <div class="pb pb-active" style="height: 38px"></div>
+              <div class="pb" style="height: 16px"></div>
+              <div class="pb" style="height: 26px"></div>
+            </div>
+
+            <div class="section-sep"></div>
+
+            <div class="knob-row">
+              <div class="knob-group">
+                <div class="knob knob-a"></div>
+                <div class="knob-label">Spread</div>
+                <div class="knob-val">0.5</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a"></div>
+                <div class="knob-label">Bias</div>
+                <div class="knob-val">0.6</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a"></div>
+                <div class="knob-label">Steps</div>
+                <div class="knob-val">8</div>
+              </div>
+            </div>
+
+            <div class="deja-row">
+              <span class="deja-label">Deja vu (x)</span>
+              <div class="deja-track">
+                <div class="deja-fill-a" style="width: 30%"></div>
+              </div>
+              <span class="deja-pct">30%</span>
+            </div>
+            <div class="step-annotation">
+              ↑ t and x deja vu are independent — key musical feature
+            </div>
+          </div>
+        </div>
+
+        <!-- Plaits synth engine -->
+        <div class="section">
+          <div class="section-title">Plaits (WASM) — synthesis engine</div>
+          <div class="mode-tabs">
+            <span class="mtab">VA Osc</span>
+            <span class="mtab mtab-sel">FM</span>
+            <span class="mtab">Waveshape</span>
+            <span class="mtab">Additive</span>
+            <span class="mtab">Chord</span>
+          </div>
+          <div class="knob-row">
+            <div class="knob-group">
+              <div class="knob knob-a"></div>
+              <div class="knob-label">Timbre</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-a"></div>
+              <div class="knob-label">Morph</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-a"></div>
+              <div class="knob-label">Harm.</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-a"></div>
+              <div class="knob-label">Attack</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-a"></div>
+              <div class="knob-label">Decay</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-a"></div>
+              <div class="knob-label">Level</div>
+            </div>
+          </div>
+
+          <!-- Oscilloscope: AnalyserNode visualization -->
+          <div class="oscilloscope">
+            <span class="osc-label">Oscilloscope (AnalyserNode)</span>
+            <svg
+              class="osc-wave"
+              viewBox="0 0 300 40"
+              preserveAspectRatio="none"
+            >
+              <polyline
+                points="0,20 15,10 30,25 45,8 60,28 75,12 90,22 105,9 120,26 135,15 150,20 165,11 180,27 195,7 210,29 225,14 240,21 255,10 270,25 285,18 300,20"
+                fill="none"
+                stroke="#7F77DD"
+                stroke-width="1.5"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================== LANE B: DRUMS ======================== -->
+      <div class="lane">
+        <div class="lane-header">
+          <span class="lane-tag tag-b">Lane B</span>
+          <span class="lane-name">Plaits Drums + Marbles Rhythm Generator</span>
+          <div class="lane-mode">
+            <div class="dot" style="background: var(--accent-b)"></div>
+            Euclidean / Probabilistic
+          </div>
+        </div>
+
+        <!-- Drum Marbles section -->
+        <div class="section" style="margin-bottom: 10px">
+          <div class="section-title">
+            Marbles — rhythm generator (shared clock, 3 trigger outputs)
+          </div>
+          <div class="knob-row">
+            <div class="knob-group">
+              <div class="knob knob-b"></div>
+              <div class="knob-label">Density</div>
+              <div class="knob-val">0.7</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-b"></div>
+              <div class="knob-label">Jitter</div>
+              <div class="knob-val">0.1</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-b"></div>
+              <div class="knob-label">Bias</div>
+              <div class="knob-val">0.5</div>
+            </div>
+            <div class="knob-group">
+              <div class="knob knob-b"></div>
+              <div class="knob-label">Length</div>
+              <div class="knob-val">16</div>
+            </div>
+          </div>
+          <div class="deja-row">
+            <span class="deja-label">Deja vu</span>
+            <div class="deja-track"><div class="deja-fill-b"></div></div>
+            <span class="deja-pct">60%</span>
+          </div>
+        </div>
+
+        <!-- Three drum voices -->
+        <div class="drum-voices">
+          <!-- Kick -->
+          <div class="dv">
+            <div class="dv-header">
+              <span class="dv-name" style="color: var(--accent-a)">● Kick</span>
+              <span class="dv-prob">Bias 85%</span>
+            </div>
+            <div class="prob-bar">
+              <div
+                class="prob-fill"
+                style="background: var(--accent-a); width: 85%"
+              ></div>
+            </div>
+            <div class="steps-row" style="gap: 2px">
+              <div class="step b-current" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step b-fired" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+            </div>
+            <div
+              class="knob-row"
+              style="justify-content: center; margin-top: 8px"
+            >
+              <div class="knob-group">
+                <div class="knob knob-a knob-sm"></div>
+                <div class="knob-label">Tune</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a knob-sm"></div>
+                <div class="knob-label">Decay</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-a knob-sm"></div>
+                <div class="knob-label">Snap</div>
+              </div>
+            </div>
+            <!-- Peak meter -->
+            <div class="meters">
+              <div class="meter-bar" style="height: 24px">
+                <div
+                  class="meter-fill"
+                  style="background: var(--accent-a); height: 70%"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Snare -->
+          <div class="dv">
+            <div class="dv-header">
+              <span class="dv-name" style="color: var(--accent-b)"
+                >— Snare</span
+              >
+              <span class="dv-prob">Bias 65%</span>
+            </div>
+            <div class="prob-bar">
+              <div
+                class="prob-fill"
+                style="background: var(--accent-b); width: 65%"
+              ></div>
+            </div>
+            <div class="steps-row" style="gap: 2px">
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step b-fired" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+              <div class="step b-fired" style="width: 14px"></div>
+              <div class="step" style="width: 14px"></div>
+            </div>
+            <div
+              class="knob-row"
+              style="justify-content: center; margin-top: 8px"
+            >
+              <div class="knob-group">
+                <div class="knob knob-b knob-sm"></div>
+                <div class="knob-label">Snap</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-b knob-sm"></div>
+                <div class="knob-label">Tone</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-b knob-sm"></div>
+                <div class="knob-label">Decay</div>
+              </div>
+            </div>
+            <div class="meters">
+              <div class="meter-bar" style="height: 24px">
+                <div
+                  class="meter-fill"
+                  style="background: var(--accent-b); height: 45%"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hi-Hat -->
+          <div class="dv">
+            <div class="dv-header">
+              <span class="dv-name" style="color: var(--accent-hat)"
+                >∿ Hi-Hat</span
+              >
+              <span class="dv-prob">Bias 55%</span>
+            </div>
+            <div class="prob-bar">
+              <div
+                class="prob-fill"
+                style="background: var(--accent-hat); width: 55%"
+              ></div>
+            </div>
+            <div class="steps-row" style="gap: 2px">
+              <div
+                class="step b-fired"
+                style="
+                  width: 14px;
+                  border-color: var(--accent-hat);
+                  background: rgba(186, 117, 23, 0.2);
+                "
+              ></div>
+              <div class="step" style="width: 14px"></div>
+              <div
+                class="step b-fired"
+                style="
+                  width: 14px;
+                  border-color: var(--accent-hat);
+                  background: rgba(186, 117, 23, 0.2);
+                "
+              ></div>
+              <div class="step" style="width: 14px"></div>
+              <div
+                class="step b-fired"
+                style="
+                  width: 14px;
+                  border-color: var(--accent-hat);
+                  background: rgba(186, 117, 23, 0.2);
+                "
+              ></div>
+              <div class="step" style="width: 14px"></div>
+              <div
+                class="step b-fired"
+                style="
+                  width: 14px;
+                  border-color: var(--accent-hat);
+                  background: rgba(186, 117, 23, 0.2);
+                "
+              ></div>
+              <div class="step" style="width: 14px"></div>
+            </div>
+            <div
+              class="knob-row"
+              style="justify-content: center; margin-top: 8px"
+            >
+              <div class="knob-group">
+                <div class="knob knob-hat knob-sm"></div>
+                <div class="knob-label">Open</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-hat knob-sm"></div>
+                <div class="knob-label">Tone</div>
+              </div>
+              <div class="knob-group">
+                <div class="knob knob-hat knob-sm"></div>
+                <div class="knob-label">Decay</div>
+              </div>
+            </div>
+            <div class="meters">
+              <div class="meter-bar" style="height: 24px">
+                <div
+                  class="meter-fill"
+                  style="background: var(--accent-hat); height: 30%"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <button class="btn">💾 Save preset</button>
+        <button class="btn">📂 Load preset</button>
+        <button class="btn btn-rnd">⚄ Randomize all</button>
+      </div>
+    </div>
+  </body>
+</html>
