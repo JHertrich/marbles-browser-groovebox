@@ -244,7 +244,10 @@ export function reducer(state: AppState, action: Action): AppState {
           ...state.laneB,
           snare: {
             ...state.laneB.snare,
-            snap: Math.random(), tone: Math.random(), decay: 0.2 + Math.random() * 0.8,
+            snap: 0.4 + Math.random() * 0.6,       // keep noise component audible
+            tone: Math.random(),
+            body: 0.2 + Math.random() * 0.7,        // avoid fully dead body
+            decay: 0.15 + Math.random() * 0.6,
           },
         },
       }

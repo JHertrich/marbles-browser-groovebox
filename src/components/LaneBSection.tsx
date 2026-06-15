@@ -125,9 +125,11 @@ export function LaneBSection() {
           <StepGrid subscribe={snareSub} color={B} cells={8} />
           <div className="knob-row" style={{ justifyContent: 'center', marginTop: 8 }}>
             <Knob value={snare.snap} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { snap: v } })}
-              defaultValue={0.4} size={28} color={B} label="Snap" valueLabel={fmt(snare.snap)} />
+              defaultValue={0.65} size={28} color={B} label="Snap" valueLabel={fmt(snare.snap)} />
             <Knob value={snare.tone} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { tone: v } })}
               defaultValue={0.5} size={28} color={B} label="Tone" valueLabel={fmt(snare.tone)} />
+            <Knob value={snare.body} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { body: v } })}
+              defaultValue={0.5} size={28} color={B} label="Body" valueLabel={fmt(snare.body)} />
             <Knob value={snare.decay} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { decay: v } })}
               defaultValue={0.4} size={28} color={B} label="Decay" valueLabel={fmt(snare.decay)} />
             <Knob value={sends.snare.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'snare', patch: { delay: v } })}

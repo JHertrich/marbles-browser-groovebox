@@ -55,9 +55,10 @@ export interface KickParams {
 }
 
 export interface SnareParams {
-  snap: number        // 0–1 (morph: tonal↔noise)
-  tone: number        // 0–1 (harmonics: snare pitch)
-  decay: number       // 0–1
+  snap:  number  // 0–1 → timbre: noise/body balance (0=body only, 1=noise only)
+  tone:  number  // 0–1 → harmonics: frequency / color of the body+noise
+  body:  number  // 0–1 → morph: body resonance (0=rimshot-dry, 1=resonant ring)
+  decay: number  // 0–1
 }
 
 export interface HatParams {

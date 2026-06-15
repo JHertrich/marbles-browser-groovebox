@@ -347,6 +347,11 @@ class AudioEngine {
     this.snareVoice.engine = 14
     this.snareVoice.modTriggerPatched = 1
     this.snareVoice.volume = 0.8
+    // Pre-initialize to avoid the first-trigger starting from 0 on all params
+    this.snareVoice.timbre = 0.65   // snap default
+    this.snareVoice.harmonics = 0.5 // tone default
+    this.snareVoice.morph = 0.5     // body default
+    this.snareVoice.decay = 0.4
     this.snareVoice.connect(this.snareMuteGain)
     this.snareMuteGain.connect(this.snareAnalyser)
     this.snareVoice.start()
@@ -446,9 +451,10 @@ class AudioEngine {
   triggerSnare(params: SnareParams, when = 0): void {
     if (!this.snareVoice || !this.ctx) return
     const t = this.ctx.currentTime + when + 0.016
-    // Engine 14: harmonics = noise burst (snap/crack), timbre = body colour (tone)
-    this.snareVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.snap, t)
-    this.snareVoice.timbreAudioParameter.linearRampToValueAtTime(params.tone, t)
+    // Engine 14: timbre=snappiness (noise/body balance), harmonics=body+noise frequency, morph=body resonance
+    this.snareVoice.timbreAudioParameter.linearRampToValueAtTime(params.snap, t)
+    this.snareVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.tone, t)
+    this.snareVoice.morphAudioParameter.linearRampToValueAtTime(params.body, t)
     this.snareVoice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
     this.fireTrigger(this.snareVoice, when)
   }

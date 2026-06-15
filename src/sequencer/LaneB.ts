@@ -43,7 +43,7 @@ class LaneB {
     jitter:  0.1,
     length:  16,
     kick:  { bias: 0.85, dejaVu: 0, enabled: true, tune: 36, decay: 0.5, snap: 0.6 },
-    snare: { bias: 0.65, dejaVu: 0, enabled: true, snap: 0.4, tone: 0.5, decay: 0.4 },
+    snare: { bias: 0.65, dejaVu: 0, enabled: true, snap: 0.65, tone: 0.5, body: 0.5, decay: 0.4 },
     hat:   { bias: 0.55, dejaVu: 0, enabled: true, open: 0.2, tone: 0.7 },
   }
 
