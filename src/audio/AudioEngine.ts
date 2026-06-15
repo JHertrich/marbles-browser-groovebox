@@ -163,6 +163,7 @@ function toneToHz(t: number): number { return 400 * Math.pow(15, t) }
 class AudioEngine {
   private ctx: AudioContext | null = null
   private synthVoices: WoscNode[] = []
+  private synthEnvGains: GainNode[] = []
   private synthVoiceIdx = 0
   private kickVoice: WoscNode | null = null
   private snareVoice: WoscNode | null = null
@@ -297,11 +298,18 @@ class AudioEngine {
     for (let i = 0; i < 4; i++) {
       const v = wosc.createOscillator() as WoscNode
       v.engine = 2
-      v.modTriggerPatched = 1
+      v.modTriggerPatched = 0  // continuous — amplitude is gated by envGain
       v.volume = 0.8
-      v.connect(this.synthMuteGain)
+
+      const env = this.ctx.createGain()
+      env.gain.value = 0       // silent until triggered
+      env.connect(this.synthMuteGain)
+
+      v.connect(env)
       v.start()
+
       this.synthVoices.push(v)
+      this.synthEnvGains.push(env)
     }
     this.synthMuteGain.connect(this.synthAnalyser)
 
@@ -422,19 +430,31 @@ class AudioEngine {
 
   triggerSynth(midiNote: number, params: SynthParams, when = 0): void {
     if (!this.synthVoices.length || !this.ctx) return
-    const voice = this.synthVoices[this.synthVoiceIdx % 4]
+    const idx = this.synthVoiceIdx % 4
     this.synthVoiceIdx = (this.synthVoiceIdx + 1) % 4
-    const t = this.ctx.currentTime + when + 0.016
+    const voice = this.synthVoices[idx]
+    const env   = this.synthEnvGains[idx]
 
-    voice.note = midiNote
+    const t0 = this.ctx.currentTime + when
+    const atkEnd = t0 + 0.010                           // 10 ms attack
+    const noteDur = 0.15 + params.decay * 4.0           // 150 ms – 4.15 s
+    const relEnd  = t0 + noteDur
+
+    // Schedule note/engine change at trigger time to avoid mid-note pitch blips
+    voice.noteAudioParameter.setValueAtTime(midiNote, t0)
     voice.engine = params.engine
-    voice.timbreAudioParameter.linearRampToValueAtTime(params.timbre, t)
-    voice.morphAudioParameter.linearRampToValueAtTime(params.morph, t)
-    voice.harmonicsAudioParameter.linearRampToValueAtTime(params.harmonics, t)
-    voice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
-    voice.volumeAudioParameter.linearRampToValueAtTime(params.level, t)
+    voice.timbreAudioParameter.setValueAtTime(params.timbre, t0)
+    voice.morphAudioParameter.setValueAtTime(params.morph, t0)
+    voice.harmonicsAudioParameter.setValueAtTime(params.harmonics, t0)
 
-    this.fireTrigger(voice, when)
+    // Gate via GainNode: any running envelope is cancelled and restarted
+    const g = env.gain
+    g.cancelScheduledValues(t0)
+    g.setValueAtTime(0, t0)
+    g.linearRampToValueAtTime(1.0, atkEnd)
+    g.setValueAtTime(1.0, atkEnd)
+    g.exponentialRampToValueAtTime(0.0001, relEnd)
+    g.setValueAtTime(0, relEnd)
   }
 
   setSynthParams(params: SynthParams): void {
@@ -620,6 +640,8 @@ class AudioEngine {
   dispose(): void {
     this.synthVoices.forEach(v => v.dispose())
     this.synthVoices = []
+    this.synthEnvGains.forEach(g => g.disconnect())
+    this.synthEnvGains = []
     this.synthVoiceIdx = 0
     this.kickVoice?.dispose()
     this.snareVoice?.dispose()
