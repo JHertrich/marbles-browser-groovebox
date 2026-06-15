@@ -87,9 +87,21 @@ function randB(laneB: LaneBState): LaneBState {
   return {
     ...laneB,
     density: 0.3 + Math.random() * 0.7,
-    kick:  { ...laneB.kick,  bias: Math.random(), dejaVu: Math.random() * 0.8 },
-    snare: { ...laneB.snare, bias: Math.random(), dejaVu: Math.random() * 0.8 },
-    hat:   { ...laneB.hat,   bias: Math.random(), dejaVu: Math.random() * 0.8 },
+    kick:  { ...laneB.kick,
+      bias:     0.0625 + Math.random() * 0.375,  // 1–7 hits in 16 at density 0.5
+      dejaVu:   Math.random() * 0.5,
+      rotation: Math.random(),
+    },
+    snare: { ...laneB.snare,
+      bias:     0.0625 + Math.random() * 0.25,   // 1–5 hits in 16 at density 0.5
+      dejaVu:   Math.random() * 0.4,
+      rotation: Math.random(),
+    },
+    hat: { ...laneB.hat,
+      bias:     0.125 + Math.random() * 0.75,    // 2–14 hits in 16 at density 0.5
+      dejaVu:   Math.random() * 0.4,
+      rotation: Math.random(),
+    },
   }
 }
 

@@ -20,7 +20,12 @@ Three synchronized lanes — a Plaits synthesizer sequenced by Marbles, three Pl
 ## Features
 
 - **Lane A — Synth**: Marbles-inspired generative pitch sequencer driving a **4-voice polyphonic** Plaits WASM synthesizer (round-robin voice allocation); each voice runs in continuous mode, gated by a per-voice GainNode envelope (10 ms attack, 150 ms–4.15 s decay controlled by the Decay knob); t-section controls timing/rhythm, x-section controls pitch/scale with root note and scale mode
-- **Lane B — Drums**: Marbles-inspired probabilistic rhythm generator driving three Plaits drum voices:
+- **Lane B — Drums**: **Euclidean rhythm generator** (Bjorklund/Bresenham algorithm) driving three independent Plaits drum voices; each voice has its own Fill, Variation, and Rotation parameters:
+  - **Fill** (0–1) — sets the number of evenly-distributed hits; e.g. kick Fill 0.25 in 16 steps = four-on-the-floor (4 hits), snare Fill 0.125 = backbeat (2 hits), hat Fill 0.5 = straight 8ths
+  - **Variation** — randomly drops Euclidean hits or injects ghost hits, preserving the groove skeleton while adding life; 0 = strict Euclidean, 1 = maximum variation
+  - **Rotation** — shifts the pattern's starting offset (e.g. snare Rotation 0.25 in 16 steps = 4-step offset → beats 2 & 4); default: kick 0, snare 0.25, hat 0
+  - **Density** (global) — scales all voices' effective hit count; 0.5 = neutral, 0 = silence, 1 = doubled
+  - **Jitter** (global) — timing humanization applied after Euclidean grid
   - **Kick** — engine 13; Tune, Snap, Decay
   - **Snare** — engine 14; Snap (noise/body balance), Tone (body+noise frequency), Body (resonance), Decay
   - **Hi-Hat** — engine 15; Open, Tone

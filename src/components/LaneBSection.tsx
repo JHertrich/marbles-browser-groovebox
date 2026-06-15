@@ -44,14 +44,14 @@ export function LaneBSection() {
         <span className="lane-name">Plaits Drums + Marbles Rhythm Generator</span>
         <div className="lane-mode">
           <div className="dot" style={{ background: B }} />
-          Probabilistic
+          Euclidean
         </div>
       </div>
 
       {/* ── Shared rhythm section ── */}
       <div className="section" style={{ marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-          <span className="section-title" style={{ marginBottom: 0 }}>Marbles — rhythm generator (3 trigger outputs)</span>
+          <span className="section-title" style={{ marginBottom: 0 }}>Euclidean — rhythm generator (3 trigger outputs)</span>
           <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_LANE_B_RHYTHM' })}>⚄</button>
         </div>
         <div className="knob-row">
@@ -84,11 +84,11 @@ export function LaneBSection() {
               title={kick.enabled ? 'Mute kick' : 'Unmute kick'}
             />
             <span className="dv-name" style={{ color: A, opacity: kick.enabled ? 1 : 0.4 }}>● Kick</span>
-            <span className="dv-prob">Bias {Math.round(kick.bias * 100)}%</span>
+            <span className="dv-prob">Fill {Math.round(Math.min(1, kick.bias * density * 2) * length)}/{length}</span>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_KICK' })}>⚄</button>
           </div>
           <div className="prob-bar">
-            <div className="prob-fill" style={{ background: A, width: `${kick.bias * 100}%` }} />
+            <div className="prob-fill" style={{ background: A, width: `${Math.min(100, kick.bias * density * 2 * 100)}%` }} />
           </div>
           <StepGrid subscribe={kickSub} color={A} cells={8} />
           <div className="knob-row" style={{ justifyContent: 'center', marginTop: 8 }}>
@@ -103,7 +103,7 @@ export function LaneBSection() {
             <Knob value={sends.kick.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'kick', patch: { reverb: v } })}
               defaultValue={0.15} size={28} color={C} label="Rvb" valueLabel={fmt(sends.kick.reverb)} />
           </div>
-          <DejaVuBar value={kick.dejaVu} color={A} label="Deja vu" />
+          <DejaVuBar value={kick.dejaVu} color={A} label="Variation" />
           <PeakMeter analyser={audioEngine.kickAnalyserNode} color={A} />
         </div>
 
@@ -117,11 +117,11 @@ export function LaneBSection() {
               title={snare.enabled ? 'Mute snare' : 'Unmute snare'}
             />
             <span className="dv-name" style={{ color: B, opacity: snare.enabled ? 1 : 0.4 }}>— Snare</span>
-            <span className="dv-prob">Bias {Math.round(snare.bias * 100)}%</span>
+            <span className="dv-prob">Fill {Math.round(Math.min(1, snare.bias * density * 2) * length)}/{length}</span>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_SNARE' })}>⚄</button>
           </div>
           <div className="prob-bar">
-            <div className="prob-fill" style={{ background: B, width: `${snare.bias * 100}%` }} />
+            <div className="prob-fill" style={{ background: B, width: `${Math.min(100, snare.bias * density * 2 * 100)}%` }} />
           </div>
           <StepGrid subscribe={snareSub} color={B} cells={8} />
           <div className="knob-row" style={{ justifyContent: 'center', marginTop: 8 }}>
@@ -138,7 +138,7 @@ export function LaneBSection() {
             <Knob value={sends.snare.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'snare', patch: { reverb: v } })}
               defaultValue={0.25} size={28} color={C} label="Rvb" valueLabel={fmt(sends.snare.reverb)} />
           </div>
-          <DejaVuBar value={snare.dejaVu} color={B} label="Deja vu" />
+          <DejaVuBar value={snare.dejaVu} color={B} label="Variation" />
           <PeakMeter analyser={audioEngine.snareAnalyserNode} color={B} />
         </div>
 
@@ -152,11 +152,11 @@ export function LaneBSection() {
               title={hat.enabled ? 'Mute hi-hat' : 'Unmute hi-hat'}
             />
             <span className="dv-name" style={{ color: HAT, opacity: hat.enabled ? 1 : 0.4 }}>∿ Hi-Hat</span>
-            <span className="dv-prob">Bias {Math.round(hat.bias * 100)}%</span>
+            <span className="dv-prob">Fill {Math.round(Math.min(1, hat.bias * density * 2) * length)}/{length}</span>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_HAT' })}>⚄</button>
           </div>
           <div className="prob-bar">
-            <div className="prob-fill" style={{ background: HAT, width: `${hat.bias * 100}%` }} />
+            <div className="prob-fill" style={{ background: HAT, width: `${Math.min(100, hat.bias * density * 2 * 100)}%` }} />
           </div>
           <StepGrid subscribe={hatSub} color={HAT} cells={8} />
           <div className="knob-row" style={{ justifyContent: 'center', marginTop: 8 }}>
@@ -169,7 +169,7 @@ export function LaneBSection() {
             <Knob value={sends.hat.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'hat', patch: { reverb: v } })}
               defaultValue={0.08} size={28} color={C} label="Rvb" valueLabel={fmt(sends.hat.reverb)} />
           </div>
-          <DejaVuBar value={hat.dejaVu} color={HAT} label="Deja vu" />
+          <DejaVuBar value={hat.dejaVu} color={HAT} label="Variation" />
           <PeakMeter analyser={audioEngine.hatAnalyserNode} color={HAT} />
         </div>
 
@@ -177,14 +177,17 @@ export function LaneBSection() {
 
       {/* per-voice bias knobs row */}
       <div className="section" style={{ marginTop: 10 }}>
-        <div className="section-title">Per-voice bias &amp; deja vu</div>
+        <div className="section-title">Per-voice fill, variation &amp; rotation</div>
         <div className="knob-row">
-          <Knob value={kick.bias}  onChange={v => dispatch({ type: 'PATCH_KICK',  patch: { bias: v } })}  defaultValue={0.85} color={A}   label="K.Bias"  valueLabel={fmt(kick.bias)} />
-          <Knob value={kick.dejaVu}  onChange={v => dispatch({ type: 'PATCH_KICK',  patch: { dejaVu: v } })} defaultValue={0} color={A}   label="K.Loop"  valueLabel={fmt(kick.dejaVu)} />
-          <Knob value={snare.bias} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { bias: v } })}  defaultValue={0.65} color={B}   label="S.Bias"  valueLabel={fmt(snare.bias)} />
-          <Knob value={snare.dejaVu} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { dejaVu: v } })} defaultValue={0} color={B}   label="S.Loop"  valueLabel={fmt(snare.dejaVu)} />
-          <Knob value={hat.bias}   onChange={v => dispatch({ type: 'PATCH_HAT',   patch: { bias: v } })}  defaultValue={0.55} color={HAT} label="H.Bias"  valueLabel={fmt(hat.bias)} />
-          <Knob value={hat.dejaVu}   onChange={v => dispatch({ type: 'PATCH_HAT',   patch: { dejaVu: v } })} defaultValue={0} color={HAT} label="H.Loop"  valueLabel={fmt(hat.dejaVu)} />
+          <Knob value={kick.bias}     onChange={v => dispatch({ type: 'PATCH_KICK',  patch: { bias: v } })}     defaultValue={0.25}  color={A}   label="K.Fill" valueLabel={fmt(kick.bias)} />
+          <Knob value={kick.dejaVu}   onChange={v => dispatch({ type: 'PATCH_KICK',  patch: { dejaVu: v } })}   defaultValue={0}     color={A}   label="K.Var"  valueLabel={fmt(kick.dejaVu)} />
+          <Knob value={kick.rotation} onChange={v => dispatch({ type: 'PATCH_KICK',  patch: { rotation: v } })} defaultValue={0}     color={A}   label="K.Rot"  valueLabel={fmt(kick.rotation)} />
+          <Knob value={snare.bias}    onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { bias: v } })}     defaultValue={0.125} color={B}   label="S.Fill" valueLabel={fmt(snare.bias)} />
+          <Knob value={snare.dejaVu}  onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { dejaVu: v } })}   defaultValue={0}     color={B}   label="S.Var"  valueLabel={fmt(snare.dejaVu)} />
+          <Knob value={snare.rotation} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { rotation: v } })} defaultValue={0.25} color={B}  label="S.Rot"  valueLabel={fmt(snare.rotation)} />
+          <Knob value={hat.bias}      onChange={v => dispatch({ type: 'PATCH_HAT',   patch: { bias: v } })}     defaultValue={0.5}   color={HAT} label="H.Fill" valueLabel={fmt(hat.bias)} />
+          <Knob value={hat.dejaVu}    onChange={v => dispatch({ type: 'PATCH_HAT',   patch: { dejaVu: v } })}   defaultValue={0}     color={HAT} label="H.Var"  valueLabel={fmt(hat.dejaVu)} />
+          <Knob value={hat.rotation}  onChange={v => dispatch({ type: 'PATCH_HAT',   patch: { rotation: v } })} defaultValue={0}     color={HAT} label="H.Rot"  valueLabel={fmt(hat.rotation)} />
         </div>
       </div>
     </div>
