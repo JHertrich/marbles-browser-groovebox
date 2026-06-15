@@ -308,7 +308,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'TOGGLE_GRAN_RECORDING':
       return { ...state, laneD: { ...state.laneD, granRecording: !state.laneD.granRecording } }
     case 'RANDOMIZE_GRAN':
-      return { ...state, laneD: randD(state.laneD) }
+      return { ...state, laneD: { ...state.laneD, grain: randD(state.laneD).grain } }
     case 'RANDOMIZE_LANE_D_T':
       return {
         ...state,
