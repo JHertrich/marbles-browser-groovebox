@@ -56,7 +56,7 @@ function randA(laneA: LaneAState): LaneAState {
       mode: pick(SCALE_MODE_NAMES),
     },
     synth: {
-      ...laneA.synth,
+      engine: pick([0, 1, 2, 4, 6] as const),
       timbre: rnd(), morph: rnd(), harmonics: rnd(),
       decay: 0.2 + rnd() * 0.8, level: 0.4 + rnd() * 0.6,
     },
@@ -109,7 +109,30 @@ export function reducer(state: AppState, action: Action): AppState {
         },
       }
     case 'RANDOMIZE':
-      return { ...state, laneA: randA(state.laneA), laneB: randB(state.laneB) }
+      return {
+        ...state,
+        laneA: randA(state.laneA),
+        laneB: randB(state.laneB),
+        laneC: {
+          ...state.laneC,
+          delay: {
+            ...state.laneC.delay,
+            feedback: rnd() * 0.85,
+            tone: rnd(),
+            returnLevel: 0.3 + rnd() * 0.6,
+            bpmSync: rnd() > 0.25,
+            syncDiv: pick(SYNC_DIVS),
+            time: rnd() * 1.5,
+          },
+          reverb: {
+            size: 0.2 + rnd() * 0.8,
+            decay: rnd(),
+            tone: 0.3 + rnd() * 0.7,
+            preDelay: rnd() * 0.08,
+            returnLevel: 0.3 + rnd() * 0.6,
+          },
+        },
+      }
     case 'RANDOMIZE_SYNTH':
       return {
         ...state,

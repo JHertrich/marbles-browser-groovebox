@@ -8,13 +8,13 @@ and three Plaits drum voices driven by a probabilistic rhythm generator.
 
 ## Platform Support
 
-| Platform | Status |
-|----------|--------|
-| Chrome 110+ | ✅ Supported |
-| Firefox 120+ | ✅ Supported |
-| Electron (desktop) | 🔜 Planned wrapper |
-| Tauri (desktop) | 🔜 Planned wrapper |
-| **iOS** | ❌ **Not supported** — Electron does not run on iOS; AudioWorklet + WASM constraints make iOS a non-target for this project |
+| Platform           | Status                                                                                                                      |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Chrome 110+        | ✅ Supported                                                                                                                |
+| Firefox 120+       | ✅ Supported                                                                                                                |
+| Electron (desktop) | 🔜 Planned wrapper                                                                                                          |
+| Tauri (desktop)    | 🔜 Planned wrapper                                                                                                          |
+| **iOS**            | ❌ **Not supported** — Electron does not run on iOS; AudioWorklet + WASM constraints make iOS a non-target for this project |
 
 ---
 
@@ -22,10 +22,13 @@ and three Plaits drum voices driven by a probabilistic rhythm generator.
 
 - **Lane A — Synth**: Marbles-inspired generative pitch sequencer (TypeScript) driving a Plaits WASM synthesizer voice
 - **Lane B — Drums**: Marbles-inspired probabilistic rhythm generator driving three Plaits drum voices (Kick, Snare, Hi-Hat)
-- **Lane C — Effects**: Send-based delay (BPM-sync or free) and convolution reverb with synthetically generated impulse response; each voice has independent delay and reverb send levels
+- **Effects**: Send-based delay (BPM-sync or free, feedback-capped, tone-filtered) and convolution reverb with algorithmically generated impulse response; per-voice Dly/Rvb send knobs inline on each voice card; global Delay and Reverb controls in a compact strip
 - **Shared master clock**: `AudioContext.currentTime`-based lookahead scheduler (100 ms window, 25 ms interval)
 - **Generative sequencing**: Independent t (timing) and x (pitch) generators with `deja_vu` loop control
-- **Per-voice randomize**: Each voice card has a ⚄ button that randomizes its synthesis parameters independently (not sequencer/rhythm parameters)
+- **Randomize system** — granular ⚄ buttons at every level:
+  - Per-section: t-generator, x-generator (incl. root + scale), rhythm generator, Delay, Reverb
+  - Per-voice: Synth (incl. engine), Kick, Snare, Hi-Hat
+  - Global (transport ⚄): all of the above at once
 - **Preset system**: Save/load all parameters as JSON via `localStorage`
 
 ---
@@ -37,13 +40,13 @@ and three Plaits drum voices driven by a probabilistic rhythm generator.
 Before writing any synthesis code, all available npm packages and GitHub repositories for
 WebAssembly ports of Mutable Instruments modules were surveyed.
 
-| Package | Plaits engines | Marbles | AudioWorklet-ready | Last updated |
-|---------|---------------|---------|-------------------|--------------|
-| **`@vectorsize/woscillators`** | ✅ All 16 (0–15) | ❌ Plaits only | ✅ Yes | Nov 2025 (active) |
-| `@vectorsize/weaves-oscillators` | ✅ Partial | ❌ | ✅ | Apr 2022 (unmaintained) |
-| `mi-plaits-wasm` | — | — | — | **Does not exist** on npm |
-| `mutable-instruments-wasm` | — | — | — | **Does not exist** on npm |
-| `plaits-wasm` | — | — | — | **Does not exist** on npm |
+| Package                          | Plaits engines   | Marbles        | AudioWorklet-ready | Last updated              |
+| -------------------------------- | ---------------- | -------------- | ------------------ | ------------------------- |
+| **`@vectorsize/woscillators`**   | ✅ All 16 (0–15) | ❌ Plaits only | ✅ Yes             | Nov 2025 (active)         |
+| `@vectorsize/weaves-oscillators` | ✅ Partial       | ❌             | ✅                 | Apr 2022 (unmaintained)   |
+| `mi-plaits-wasm`                 | —                | —              | —                  | **Does not exist** on npm |
+| `mutable-instruments-wasm`       | —                | —              | —                  | **Does not exist** on npm |
+| `plaits-wasm`                    | —                | —              | —                  | **Does not exist** on npm |
 
 **No Marbles WASM port exists** on npm or GitHub.
 
@@ -55,16 +58,16 @@ off the main thread.
 
 Engine mapping used in this project:
 
-| Engine index | Name | Used for |
-|-------------|------|---------|
-| 0 | Virtual Analog | Lane A melodic option |
-| 1 | Waveshaping | Lane A melodic option |
-| 2 | FM | Lane A default |
-| 4 | Additive | Lane A melodic option |
-| 6 | Chord | Lane A melodic option |
-| 13 | Bass drum | Lane B Kick |
-| 14 | Snare drum | Lane B Snare |
-| 15 | Hi-hat | Lane B Hi-Hat |
+| Engine index | Name           | Used for              |
+| ------------ | -------------- | --------------------- |
+| 0            | Virtual Analog | Lane A melodic option |
+| 1            | Waveshaping    | Lane A melodic option |
+| 2            | FM             | Lane A default        |
+| 4            | Additive       | Lane A melodic option |
+| 6            | Chord          | Lane A melodic option |
+| 13           | Bass drum      | Lane B Kick           |
+| 14           | Snare drum     | Lane B Snare          |
+| 15           | Hi-hat         | Lane B Hi-Hat         |
 
 ### Vite integration workaround
 
@@ -123,6 +126,7 @@ React UI (main thread)
 ```
 
 Send effects architecture:
+
 - Each voice output (post-analyser) connects to two send `GainNode`s (delay send, reverb send)
 - All delay sends merge into a shared `DelayNode → BiquadFilter (tone) → feedback GainNode` loop
 - All reverb sends merge into a shared `DelayNode (pre-delay) → ConvolverNode → BiquadFilter (tone)`
@@ -141,19 +145,31 @@ State is split strictly:
 ```
 src/
 ├── audio/
-│   ├── AudioEngine.ts    # Singleton: owns AudioContext + 4 Plaits voice nodes
-│   └── types.ts          # TypeScript interface for WoscNode + param types
+│   ├── AudioEngine.ts       # Singleton: 4 Plaits voices + delay/reverb send buses
+│   └── types.ts             # WoscNode interface + param types
 ├── sequencer/
-│   ├── LogisticMap.ts    # Chaotic RNG (logistic map) for Marbles
-│   ├── scales.ts         # Scale definitions + pitch quantizer
-│   ├── MarblesT.ts       # t-section: timing/trigger generator with deja_vu
-│   ├── MarblesX.ts       # x-section: pitch voltage generator with deja_vu
-│   ├── MasterClock.ts    # AudioContext lookahead scheduler
-│   └── LaneA.ts          # Wires t + x → Plaits synth voice
-├── components/           # (Phase 5) React UI components
-├── state/                # (Phase 5) useReducer + Context
+│   ├── LogisticMap.ts       # Chaotic RNG (logistic map) for Marbles
+│   ├── scales.ts            # Scale definitions + pitch quantizer
+│   ├── MarblesT.ts          # t-section: timing/trigger generator with deja_vu
+│   ├── MarblesX.ts          # x-section: pitch voltage generator with deja_vu
+│   ├── MasterClock.ts       # AudioContext lookahead scheduler
+│   ├── LaneA.ts             # Wires t + x → Plaits synth voice
+│   └── LaneB.ts             # 3 independent MarblesT → Plaits drum voices
+├── components/
+│   ├── Transport.tsx        # BPM, play/stop, global randomize, save/load
+│   ├── LaneASection.tsx     # Marbles t + x controls, Plaits engine + knobs
+│   ├── LaneBSection.tsx     # Rhythm generator + 3 drum voice panels
+│   ├── FxSection.tsx        # Compact Delay + Reverb global controls
+│   ├── Knob.tsx             # SVG rotary knob with pointer-capture drag
+│   ├── StepGrid.tsx         # Reactive trigger-history display (read-only)
+│   ├── Oscilloscope.tsx     # AnalyserNode time-domain canvas
+│   └── PeakMeter.tsx        # AnalyserNode frequency-domain bar
+├── state/
+│   ├── types.ts             # AppState, LaneAState, LaneBState, LaneCState
+│   ├── reducer.ts           # Pure reducer + all randomize helpers
+│   └── AppContext.tsx       # Provider: syncs state → audio on every change
 ├── styles/
-│   └── global.css        # Design tokens (from groovebox-mockup.html)
+│   └── global.css           # Design tokens + all component styles
 └── main.tsx
 ```
 
@@ -166,7 +182,7 @@ src/
 - [x] **Phase 3** — Marbles sequencer: logistic map, t-generator, x-generator, Lane A wired end-to-end
 - [x] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
 - [x] **Phase 5** — Full UI: SVG Knob component, Transport bar, LaneA/LaneB panels, oscilloscope, peak meters, reactive step grids, scale/mode selectors, preset save/load via localStorage, useReducer + Context state management
-- [ ] **Phase 6** — Lane C effects: send delay (BPM-sync + free, with feedback and tone filter), convolution reverb (algorithmically generated IR, size/decay/tone/pre-delay controls), 4×2 send matrix; per-voice ⚄ randomize buttons on all four voices
+- [x] **Phase 6** — Effects (delay + reverb send buses, per-voice send knobs, compact FxSection); granular ⚄ randomize at every level (per-section, per-voice, global); snare snap mapping fix; delay feedback anti-oscillation (Q=0.5, 400–6kHz tone range, 0.85 cap)
 - [ ] **Phase 7** — Polish: parameter smoothing, Electron/Tauri wrapper
 
 ---
