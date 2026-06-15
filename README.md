@@ -1,7 +1,7 @@
 # Groovebox
 
 A browser-based generative groovebox built with React 18, Vite, TypeScript, and the Web Audio API.  
-Three synchronized lanes — a Plaits synthesizer sequenced by Marbles, three Plaits drum voices driven by a probabilistic rhythm generator, and a live granular sampler that captures the synth output in real time.
+Three synchronized lanes — a Plaits synthesizer sequenced by Marbles, three Plaits drum voices driven by a probabilistic rhythm generator, and a live granular sampler that captures the synth output in real time — unified by a 4-LFO modulation matrix with 30 routable destinations.
 
 ---
 
@@ -40,6 +40,11 @@ Three synchronized lanes — a Plaits synthesizer sequenced by Marbles, three Pl
   - Per-section: t-generator, x-generator (incl. root + scale), rhythm generator, Delay, Reverb, Granular (grain + t)
   - Per-voice: Synth (incl. engine), Kick, Snare, Hi-Hat, Granular
   - Global (transport ⚄): all of the above at once
+- **LFO Modulation Matrix**: 4 LFOs routed to 30 destinations across all lanes and FX
+  - **LFOs**: sine, triangle, square, sample-hold waveforms; rate knob (0.05–10 Hz logarithmic) or BPM-sync mode (divisions '4/1' to '1/16'); depth knob; animated bipolar gauge showing live output
+  - **Destinations**: all synth params (timbre, morph, harmonics, decay, level), Lane A/B/D timing (jitter, bias), all drum voice params (kick snap/decay, snare snap/tone/body/decay, hat open/tone), all granular params (position, size, density, pitch, spray, detune, wander, level), delay feedback and time
+  - **Routing**: click an empty matrix cell to connect an LFO, drag the amount knob for ±depth, click × to disconnect; modulated knobs show a dashed outer ring in the main view
+  - **Architecture**: `LFOEngine` ticks at 25 ms using `audioContext.currentTime` for drift-free phase; audio params applied via `setValueAtTime`; JS sequencer params (Marbles jitter/bias, density, drum timbre) written directly to sequencer objects between scheduler ticks
 - **Preset system**: Save/load all parameters as JSON via `localStorage`
 
 ---
