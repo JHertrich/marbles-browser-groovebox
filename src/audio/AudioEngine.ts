@@ -14,8 +14,10 @@ const SYNC_DIV_BEATS: Record<string, number> = {
   '1/8': 0.5, '3/16': 0.75, '1/4': 1, '3/8': 1.5, '1/2': 2,
 }
 
-// Map tone knob (0–1) to filter frequency (300 Hz – 18 kHz, log scale)
-function toneToHz(t: number): number { return 300 * Math.pow(60, t) }
+// Map tone knob (0–1) to filter frequency (400 Hz – 6 kHz, log scale).
+// Upper limit is 6 kHz rather than 20 kHz so the feedback path never passes
+// harsh high-frequency content regardless of tone setting.
+function toneToHz(t: number): number { return 400 * Math.pow(15, t) }
 
 class AudioEngine {
   private ctx: AudioContext | null = null
@@ -82,6 +84,8 @@ class AudioEngine {
     this.delayFilter   = this.ctx.createBiquadFilter()
     this.delayFilter.type = 'lowpass'
     this.delayFilter.frequency.value = toneToHz(0.7)
+    // Q = 0.5 (below Butterworth 0.707) — ensures no resonant peak in the feedback path
+    this.delayFilter.Q.value = 0.5
     this.delayFeedback = this.ctx.createGain()
     this.delayFeedback.gain.value = 0.4
     this.delayReturn   = this.ctx.createGain()
@@ -278,8 +282,8 @@ class AudioEngine {
     if (!this.ctx || !this.delayNode || !this.delayFilter || !this.delayFeedback || !this.delayReturn) return
     const t = this.ctx.currentTime + 0.016
     this.delayNode.delayTime.linearRampToValueAtTime(Math.min(time, 1.999), t)
-    // Hard cap at 0.90 — values above this cause runaway self-oscillation
-    this.delayFeedback.gain.linearRampToValueAtTime(Math.min(feedback, 0.90), t)
+    // Hard cap at 0.85 — prevents runaway self-oscillation
+    this.delayFeedback.gain.linearRampToValueAtTime(Math.min(feedback, 0.85), t)
     this.delayFilter.frequency.linearRampToValueAtTime(toneToHz(tone), t)
     this.delayReturn.gain.linearRampToValueAtTime(returnLevel, t)
   }
