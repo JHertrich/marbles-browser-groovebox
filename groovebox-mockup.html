@@ -752,30 +752,13 @@
             <span class="mtab">Chord</span>
           </div>
           <div class="knob-row">
-            <div class="knob-group">
-              <div class="knob knob-a"></div>
-              <div class="knob-label">Timbre</div>
-            </div>
-            <div class="knob-group">
-              <div class="knob knob-a"></div>
-              <div class="knob-label">Morph</div>
-            </div>
-            <div class="knob-group">
-              <div class="knob knob-a"></div>
-              <div class="knob-label">Harm.</div>
-            </div>
-            <div class="knob-group">
-              <div class="knob knob-a"></div>
-              <div class="knob-label">Attack</div>
-            </div>
-            <div class="knob-group">
-              <div class="knob knob-a"></div>
-              <div class="knob-label">Decay</div>
-            </div>
-            <div class="knob-group">
-              <div class="knob knob-a"></div>
-              <div class="knob-label">Level</div>
-            </div>
+            <div class="knob-group"><div class="knob knob-a"></div><div class="knob-label">Timbre</div></div>
+            <div class="knob-group"><div class="knob knob-a"></div><div class="knob-label">Morph</div></div>
+            <div class="knob-group"><div class="knob knob-a"></div><div class="knob-label">Harm.</div></div>
+            <div class="knob-group"><div class="knob knob-a"></div><div class="knob-label">Decay</div></div>
+            <div class="knob-group"><div class="knob knob-a"></div><div class="knob-label">Level</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">FX:Dly</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">FX:Rvb</div></div>
           </div>
 
           <!-- Oscilloscope: AnalyserNode visualization -->
@@ -852,10 +835,7 @@
               <button class="btn-voice-rnd">⚄</button>
             </div>
             <div class="prob-bar">
-              <div
-                class="prob-fill"
-                style="background: var(--accent-a); width: 85%"
-              ></div>
+              <div class="prob-fill" style="background: var(--accent-a); width: 85%"></div>
             </div>
             <div class="steps-row" style="gap: 2px">
               <div class="step b-current" style="width: 14px"></div>
@@ -867,48 +847,25 @@
               <div class="step" style="width: 14px"></div>
               <div class="step" style="width: 14px"></div>
             </div>
-            <div
-              class="knob-row"
-              style="justify-content: center; margin-top: 8px"
-            >
-              <div class="knob-group">
-                <div class="knob knob-a knob-sm"></div>
-                <div class="knob-label">Tune</div>
-              </div>
-              <div class="knob-group">
-                <div class="knob knob-a knob-sm"></div>
-                <div class="knob-label">Decay</div>
-              </div>
-              <div class="knob-group">
-                <div class="knob knob-a knob-sm"></div>
-                <div class="knob-label">Snap</div>
-              </div>
+            <div class="knob-row" style="justify-content: center; margin-top: 8px">
+              <div class="knob-group"><div class="knob knob-a knob-sm"></div><div class="knob-label">Tune</div></div>
+              <div class="knob-group"><div class="knob knob-a knob-sm"></div><div class="knob-label">Decay</div></div>
+              <div class="knob-group"><div class="knob knob-a knob-sm"></div><div class="knob-label">Snap</div></div>
+              <div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">Dly</div></div>
+              <div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">Rvb</div></div>
             </div>
-            <!-- Peak meter -->
-            <div class="meters">
-              <div class="meter-bar" style="height: 24px">
-                <div
-                  class="meter-fill"
-                  style="background: var(--accent-a); height: 70%"
-                ></div>
-              </div>
-            </div>
+            <div class="meters"><div class="meter-bar" style="height: 24px"><div class="meter-fill" style="background: var(--accent-a); height: 70%"></div></div></div>
           </div>
 
           <!-- Snare -->
           <div class="dv">
             <div class="dv-header">
-              <span class="dv-name" style="color: var(--accent-b)"
-                >— Snare</span
-              >
+              <span class="dv-name" style="color: var(--accent-b)">— Snare</span>
               <span class="dv-prob">Bias 65%</span>
               <button class="btn-voice-rnd">⚄</button>
             </div>
             <div class="prob-bar">
-              <div
-                class="prob-fill"
-                style="background: var(--accent-b); width: 65%"
-              ></div>
+              <div class="prob-fill" style="background: var(--accent-b); width: 65%"></div>
             </div>
             <div class="steps-row" style="gap: 2px">
               <div class="step" style="width: 14px"></div>
@@ -920,179 +877,75 @@
               <div class="step b-fired" style="width: 14px"></div>
               <div class="step" style="width: 14px"></div>
             </div>
-            <div
-              class="knob-row"
-              style="justify-content: center; margin-top: 8px"
-            >
-              <div class="knob-group">
-                <div class="knob knob-b knob-sm"></div>
-                <div class="knob-label">Snap</div>
-              </div>
-              <div class="knob-group">
-                <div class="knob knob-b knob-sm"></div>
-                <div class="knob-label">Tone</div>
-              </div>
-              <div class="knob-group">
-                <div class="knob knob-b knob-sm"></div>
-                <div class="knob-label">Decay</div>
-              </div>
+            <div class="knob-row" style="justify-content: center; margin-top: 8px">
+              <div class="knob-group"><div class="knob knob-b knob-sm"></div><div class="knob-label">Snap</div></div>
+              <div class="knob-group"><div class="knob knob-b knob-sm"></div><div class="knob-label">Tone</div></div>
+              <div class="knob-group"><div class="knob knob-b knob-sm"></div><div class="knob-label">Decay</div></div>
+              <div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">Dly</div></div>
+              <div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">Rvb</div></div>
             </div>
-            <div class="meters">
-              <div class="meter-bar" style="height: 24px">
-                <div
-                  class="meter-fill"
-                  style="background: var(--accent-b); height: 45%"
-                ></div>
-              </div>
-            </div>
+            <div class="meters"><div class="meter-bar" style="height: 24px"><div class="meter-fill" style="background: var(--accent-b); height: 45%"></div></div></div>
           </div>
 
           <!-- Hi-Hat -->
           <div class="dv">
             <div class="dv-header">
-              <span class="dv-name" style="color: var(--accent-hat)"
-                >∿ Hi-Hat</span
-              >
+              <span class="dv-name" style="color: var(--accent-hat)">∿ Hi-Hat</span>
               <span class="dv-prob">Bias 55%</span>
               <button class="btn-voice-rnd">⚄</button>
             </div>
             <div class="prob-bar">
-              <div
-                class="prob-fill"
-                style="background: var(--accent-hat); width: 55%"
-              ></div>
+              <div class="prob-fill" style="background: var(--accent-hat); width: 55%"></div>
             </div>
             <div class="steps-row" style="gap: 2px">
-              <div
-                class="step b-fired"
-                style="
-                  width: 14px;
-                  border-color: var(--accent-hat);
-                  background: rgba(186, 117, 23, 0.2);
-                "
-              ></div>
+              <div class="step b-fired" style="width:14px;border-color:var(--accent-hat);background:rgba(186,117,23,0.2)"></div>
               <div class="step" style="width: 14px"></div>
-              <div
-                class="step b-fired"
-                style="
-                  width: 14px;
-                  border-color: var(--accent-hat);
-                  background: rgba(186, 117, 23, 0.2);
-                "
-              ></div>
+              <div class="step b-fired" style="width:14px;border-color:var(--accent-hat);background:rgba(186,117,23,0.2)"></div>
               <div class="step" style="width: 14px"></div>
-              <div
-                class="step b-fired"
-                style="
-                  width: 14px;
-                  border-color: var(--accent-hat);
-                  background: rgba(186, 117, 23, 0.2);
-                "
-              ></div>
+              <div class="step b-fired" style="width:14px;border-color:var(--accent-hat);background:rgba(186,117,23,0.2)"></div>
               <div class="step" style="width: 14px"></div>
-              <div
-                class="step b-fired"
-                style="
-                  width: 14px;
-                  border-color: var(--accent-hat);
-                  background: rgba(186, 117, 23, 0.2);
-                "
-              ></div>
+              <div class="step b-fired" style="width:14px;border-color:var(--accent-hat);background:rgba(186,117,23,0.2)"></div>
               <div class="step" style="width: 14px"></div>
             </div>
-            <div
-              class="knob-row"
-              style="justify-content: center; margin-top: 8px"
-            >
-              <div class="knob-group">
-                <div class="knob knob-hat knob-sm"></div>
-                <div class="knob-label">Open</div>
-              </div>
-              <div class="knob-group">
-                <div class="knob knob-hat knob-sm"></div>
-                <div class="knob-label">Tone</div>
-              </div>
+            <div class="knob-row" style="justify-content: center; margin-top: 8px">
+              <div class="knob-group"><div class="knob knob-hat knob-sm"></div><div class="knob-label">Open</div></div>
+              <div class="knob-group"><div class="knob knob-hat knob-sm"></div><div class="knob-label">Tone</div></div>
+              <div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">Dly</div></div>
+              <div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-label" style="color:var(--accent-c-pale)">Rvb</div></div>
             </div>
-            <div class="meters">
-              <div class="meter-bar" style="height: 24px">
-                <div
-                  class="meter-fill"
-                  style="background: var(--accent-hat); height: 30%"
-                ></div>
-              </div>
-            </div>
+            <div class="meters"><div class="meter-bar" style="height: 24px"><div class="meter-fill" style="background: var(--accent-hat); height: 30%"></div></div></div>
           </div>
         </div>
       </div>
 
-      <!-- ======================== LANE C: EFFECTS ======================== -->
-      <div class="lane">
-        <div class="lane-header">
-          <span class="lane-tag tag-c">Lane C</span>
-          <span class="lane-name">Effects — Delay + Reverb (send)</span>
-          <div class="lane-mode">
-            <div class="dot" style="background: var(--accent-c)"></div>
-            Send FX
+      <!-- ======================== FX GLOBALS (compact, no lane wrapper) ======================== -->
+      <div class="two-col" style="margin-bottom:12px">
+        <!-- Delay global -->
+        <div class="section">
+          <div class="section-title">Delay — global</div>
+          <div class="chip-row" style="margin-bottom:8px">
+            <span class="chip chip-sel-c">BPM</span>
+            <span class="chip">1/8</span>
+            <span class="chip">3/16</span>
+            <span class="chip chip-sel-c">3/8</span>
+            <span class="chip">1/4</span>
+            <span class="chip">1/2</span>
+          </div>
+          <div class="knob-row">
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Feedback</div><div class="knob-val">0.40</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Tone</div><div class="knob-val">0.70</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Return</div><div class="knob-val">0.60</div></div>
           </div>
         </div>
-
-        <!-- Send matrix -->
-        <div class="section" style="margin-bottom: 10px">
-          <div class="section-title">Send levels — per voice</div>
-          <div class="send-matrix">
-            <div></div>
-            <div class="send-header">Delay</div>
-            <div class="send-header">Reverb</div>
-
-            <div class="send-voice-label" style="color:var(--accent-a-pale)">● Synth</div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.25</div></div></div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.35</div></div></div>
-
-            <div class="send-voice-label" style="color:var(--accent-a-pale)">● Kick</div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.05</div></div></div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.15</div></div></div>
-
-            <div class="send-voice-label" style="color:var(--accent-b-pale)">— Snare</div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.15</div></div></div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.25</div></div></div>
-
-            <div class="send-voice-label" style="color:var(--accent-hat)">∿ Hi-Hat</div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.03</div></div></div>
-            <div class="send-cell"><div class="knob-group"><div class="knob knob-sm" style="border-color:var(--accent-c)"></div><div class="knob-val">0.08</div></div></div>
-          </div>
-        </div>
-
-        <!-- Delay + Reverb controls -->
-        <div class="two-col">
-          <!-- Delay -->
-          <div class="section">
-            <div class="section-title">Delay</div>
-            <div class="chip-row" style="margin-bottom:8px">
-              <span class="chip chip-sel-c">BPM</span>
-              <span class="chip">1/8</span>
-              <span class="chip">3/16</span>
-              <span class="chip chip-sel-c">3/8</span>
-              <span class="chip">1/4</span>
-              <span class="chip">1/2</span>
-              <span class="chip">Free</span>
-            </div>
-            <div class="knob-row">
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Feedback</div><div class="knob-val">0.40</div></div>
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Tone</div><div class="knob-val">0.70</div></div>
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Return</div><div class="knob-val">0.60</div></div>
-            </div>
-          </div>
-
-          <!-- Reverb -->
-          <div class="section">
-            <div class="section-title">Reverb (convolution)</div>
-            <div class="knob-row">
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Size</div><div class="knob-val">0.60</div></div>
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Decay</div><div class="knob-val">0.50</div></div>
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Tone</div><div class="knob-val">0.60</div></div>
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Pre-dly</div><div class="knob-val">20ms</div></div>
-              <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Return</div><div class="knob-val">0.50</div></div>
-            </div>
+        <!-- Reverb global -->
+        <div class="section">
+          <div class="section-title">Reverb — global</div>
+          <div class="knob-row">
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Size</div><div class="knob-val">0.60</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Decay</div><div class="knob-val">0.50</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Tone</div><div class="knob-val">0.60</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Pre-dly</div><div class="knob-val">20ms</div></div>
+            <div class="knob-group"><div class="knob" style="border-color:var(--accent-c)"></div><div class="knob-label">Return</div><div class="knob-val">0.50</div></div>
           </div>
         </div>
       </div>

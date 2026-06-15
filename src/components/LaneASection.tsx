@@ -10,6 +10,7 @@ import { SCALE_MODE_NAMES, ROOT_NOTES } from '../sequencer/scales'
 import type { ScaleMode, RootNote } from '../sequencer/scales'
 
 const A = 'var(--accent-a)'
+const C = 'var(--accent-c)'
 const fmt = (v: number, d = 2) => v.toFixed(d)
 
 function DejaVuBar({ value, color, label }: { value: number; color: string; label: string }) {
@@ -27,6 +28,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 export function LaneASection() {
   const { state, dispatch } = useApp()
   const { t, x, synth } = state.laneA
+  const synthSends = state.laneC.sends.synth
 
   // Stable subscription for StepGrid
   const synthSubscribe = useCallback(
@@ -161,6 +163,12 @@ export function LaneASection() {
               onChange={v => dispatch({ type: 'PATCH_LANE_A_SYNTH', patch: { [k]: v } })}
               defaultValue={def} color={A} label={lbl} valueLabel={fmt(synth[k] as number)} />
           ))}
+          <Knob value={synthSends.delay}
+            onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'synth', patch: { delay: v } })}
+            defaultValue={0.25} color={C} label="FX:Dly" valueLabel={fmt(synthSends.delay)} />
+          <Knob value={synthSends.reverb}
+            onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'synth', patch: { reverb: v } })}
+            defaultValue={0.35} color={C} label="FX:Rvb" valueLabel={fmt(synthSends.reverb)} />
         </div>
         <Oscilloscope analyser={audioEngine.synthAnalyserNode} color="#7f77dd" />
       </div>

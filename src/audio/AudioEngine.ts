@@ -262,7 +262,8 @@ class AudioEngine {
   triggerSnare(params: SnareParams, when = 0): void {
     if (!this.snareVoice || !this.ctx) return
     const t = this.ctx.currentTime + when + 0.016
-    this.snareVoice.morphAudioParameter.linearRampToValueAtTime(params.snap, t)
+    // Engine 14: timbre = snap/attack character; morph = body resonance (decay-like, not snap)
+    this.snareVoice.timbreAudioParameter.linearRampToValueAtTime(params.snap, t)
     this.snareVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.tone, t)
     this.snareVoice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
     this.fireTrigger(this.snareVoice, when)

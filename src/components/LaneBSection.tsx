@@ -9,6 +9,7 @@ import { laneB } from '../sequencer/LaneB'
 const B   = 'var(--accent-b)'
 const HAT = 'var(--accent-hat)'
 const A   = 'var(--accent-a)'
+const C   = 'var(--accent-c)'
 const fmt = (v: number) => v.toFixed(2)
 
 function DejaVuBar({ value, color, label }: { value: number; color: string; label: string }) {
@@ -26,6 +27,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 export function LaneBSection() {
   const { state, dispatch } = useApp()
   const { density, jitter, length, kick, snare, hat } = state.laneB
+  const { sends } = state.laneC
 
   const kickSub  = useCallback((cb: (at: number) => void) =>
     laneB.onTrigger((v, _, at) => { if (v === 'kick')  cb(at) }), [])
@@ -86,6 +88,10 @@ export function LaneBSection() {
               defaultValue={0.5} size={28} color={A} label="Decay" valueLabel={fmt(kick.decay)} />
             <Knob value={kick.snap} onChange={v => dispatch({ type: 'PATCH_KICK', patch: { snap: v } })}
               defaultValue={0.6} size={28} color={A} label="Snap" valueLabel={fmt(kick.snap)} />
+            <Knob value={sends.kick.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'kick', patch: { delay: v } })}
+              defaultValue={0.05} size={28} color={C} label="Dly" valueLabel={fmt(sends.kick.delay)} />
+            <Knob value={sends.kick.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'kick', patch: { reverb: v } })}
+              defaultValue={0.15} size={28} color={C} label="Rvb" valueLabel={fmt(sends.kick.reverb)} />
           </div>
           <DejaVuBar value={kick.dejaVu} color={A} label="Deja vu" />
           <PeakMeter analyser={audioEngine.kickAnalyserNode} color={A} />
@@ -109,6 +115,10 @@ export function LaneBSection() {
               defaultValue={0.5} size={28} color={B} label="Tone" valueLabel={fmt(snare.tone)} />
             <Knob value={snare.decay} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { decay: v } })}
               defaultValue={0.4} size={28} color={B} label="Decay" valueLabel={fmt(snare.decay)} />
+            <Knob value={sends.snare.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'snare', patch: { delay: v } })}
+              defaultValue={0.15} size={28} color={C} label="Dly" valueLabel={fmt(sends.snare.delay)} />
+            <Knob value={sends.snare.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'snare', patch: { reverb: v } })}
+              defaultValue={0.25} size={28} color={C} label="Rvb" valueLabel={fmt(sends.snare.reverb)} />
           </div>
           <DejaVuBar value={snare.dejaVu} color={B} label="Deja vu" />
           <PeakMeter analyser={audioEngine.snareAnalyserNode} color={B} />
@@ -130,6 +140,10 @@ export function LaneBSection() {
               defaultValue={0.2} size={28} color={HAT} label="Open" valueLabel={fmt(hat.open)} />
             <Knob value={hat.tone} onChange={v => dispatch({ type: 'PATCH_HAT', patch: { tone: v } })}
               defaultValue={0.7} size={28} color={HAT} label="Tone" valueLabel={fmt(hat.tone)} />
+            <Knob value={sends.hat.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'hat', patch: { delay: v } })}
+              defaultValue={0.03} size={28} color={C} label="Dly" valueLabel={fmt(sends.hat.delay)} />
+            <Knob value={sends.hat.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'hat', patch: { reverb: v } })}
+              defaultValue={0.08} size={28} color={C} label="Rvb" valueLabel={fmt(sends.hat.reverb)} />
           </div>
           <DejaVuBar value={hat.dejaVu} color={HAT} label="Deja vu" />
           <PeakMeter analyser={audioEngine.hatAnalyserNode} color={HAT} />
