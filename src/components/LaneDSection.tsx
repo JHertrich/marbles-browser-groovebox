@@ -35,7 +35,7 @@ export function LaneDSection() {
   return (
     <div className="lane">
       <div className="lane-header">
-        <span className="lane-tag tag-d">Lane D</span>
+        <span className="lane-tag tag-d">Lane C</span>
         <span className="lane-name">Granular Sampler — live-samples Lane A synth output</span>
         <div className="lane-mode">
           <div className="dot" style={{ background: D }} />
