@@ -1,12 +1,37 @@
 import type { TParams } from '../sequencer/MarblesT'
 import type { XParams } from '../sequencer/MarblesX'
-import type { SynthParams, KickParams, SnareParams, HatParams, GranularParams } from '../audio/AudioEngine'
+import type { SynthParams, KickParams, SnareParams, HatParams, GranularParams, ModDest } from '../audio/AudioEngine'
 import type { DrumVoiceConfig } from '../sequencer/LaneB'
 import type { RootNote, ScaleMode } from '../sequencer/scales'
 
-export type { TParams, XParams, SynthParams, KickParams, SnareParams, HatParams, GranularParams, DrumVoiceConfig, RootNote, ScaleMode }
+export type { TParams, XParams, SynthParams, KickParams, SnareParams, HatParams, GranularParams, DrumVoiceConfig, RootNote, ScaleMode, ModDest }
 
 export type SyncDiv = '1/8' | '3/16' | '1/4' | '3/8' | '1/2'
+
+// ── Modulation system ─────────────────────────────────────────────────────────
+export type LFOWaveform = 'sine' | 'triangle' | 'square' | 'sample-hold'
+export type LFOSyncDiv  = '4/1' | '2/1' | '1/1' | '1/2' | '1/4' | '1/8' | '1/16'
+
+export interface LFOState {
+  waveform: LFOWaveform
+  rate:     number      // 0–1 normalized → 0.05–10 Hz (logarithmic) in free mode
+  synced:   boolean
+  syncDiv:  LFOSyncDiv
+  depth:    number      // 0–1 master depth multiplier
+}
+
+export interface ModSlot {
+  lfoIndex: 0 | 1 | 2 | 3
+  dest:     ModDest
+  amount:   number      // -1 to 1
+}
+
+export interface ModState {
+  lfos:  [LFOState, LFOState, LFOState, LFOState]
+  slots: ModSlot[]
+}
+
+const DEFAULT_LFO: LFOState = { waveform: 'sine', rate: 0.3, synced: false, syncDiv: '1/4', depth: 0.5 }
 
 export interface DelayState {
   time: number        // 0–2.0 seconds (used when bpmSync = false)
@@ -72,6 +97,7 @@ export interface AppState {
   laneB: LaneBState
   laneC: LaneCState
   laneD: LaneDState
+  mod:  ModState
 }
 
 export const DEFAULT_STATE: AppState = {
@@ -105,5 +131,9 @@ export const DEFAULT_STATE: AppState = {
     grain: { position: 0.05, size: 0.4, density: 0.4, pitch: 0.5, spray: 0.3, detune: 0.1, width: 0.5, level: 0.7, wander: 0, continuousMode: false },
     granEnabled: true,
     granRecording: true,
+  },
+  mod: {
+    lfos: [DEFAULT_LFO, DEFAULT_LFO, DEFAULT_LFO, DEFAULT_LFO],
+    slots: [],
   },
 }

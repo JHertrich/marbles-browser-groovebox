@@ -1,7 +1,8 @@
-import { createContext, useContext, useReducer, useEffect, useCallback, useRef, type ReactNode } from 'react'
+import { createContext, useContext, useReducer, useEffect, useCallback, useRef, useMemo, type ReactNode } from 'react'
 import { reducer, type Action } from './reducer'
-import { DEFAULT_STATE, type AppState } from './types'
+import { DEFAULT_STATE, type AppState, type ModDest } from './types'
 import { audioEngine } from '../audio/AudioEngine'
+import { lfoEngine } from '../audio/LFOEngine'
 import { masterClock } from '../sequencer/MasterClock'
 import { laneA } from '../sequencer/LaneA'
 import { laneB } from '../sequencer/LaneB'
@@ -12,6 +13,7 @@ interface Ctx {
   dispatch: (action: Action) => void
   startAudio: () => Promise<void>
   audioReady: boolean
+  modulatedDests: Set<ModDest>
 }
 
 const AppContext = createContext<Ctx | null>(null)
@@ -23,8 +25,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const startAudio = useCallback(async () => {
     await audioEngine.init()
+    lfoEngine.start(audioEngine.audioContext!)
     setAudioReady(true)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep LFOEngine in sync with latest state on every render
+  useEffect(() => { lfoEngine.setStateRef(state) }, [state])
 
   // Sync BPM
   useEffect(() => { masterClock.bpm = state.bpm }, [state.bpm])
@@ -133,8 +139,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (window as unknown as Record<string, unknown>).__gb_load = load
   }, [save, load])
 
+  const modulatedDests = useMemo(
+    () => new Set(state.mod.slots.map(s => s.dest)),
+    [state.mod.slots]
+  )
+
   return (
-    <AppContext.Provider value={{ state, dispatch, startAudio, audioReady }}>
+    <AppContext.Provider value={{ state, dispatch, startAudio, audioReady, modulatedDests }}>
       {children}
     </AppContext.Provider>
   )
@@ -144,6 +155,10 @@ export function useApp() {
   const ctx = useContext(AppContext)
   if (!ctx) throw new Error('useApp must be used inside AppProvider')
   return ctx
+}
+
+export function useModulatedDests(): Set<ModDest> {
+  return useApp().modulatedDests
 }
 
 // Minimal useState-like helper to avoid an extra import

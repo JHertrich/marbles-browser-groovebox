@@ -8,6 +8,7 @@ interface KnobProps {
   color?: string          // accent colour
   label?: string
   valueLabel?: string
+  modulated?: boolean     // show LFO-active indicator ring
 }
 
 const START_DEG = -135   // 7 o'clock relative to top
@@ -34,6 +35,7 @@ export function Knob({
   color = 'var(--accent-a)',
   label,
   valueLabel,
+  modulated = false,
 }: KnobProps) {
   const drag = useRef<{ y0: number; v0: number } | null>(null)
   const cx = size / 2
@@ -79,6 +81,11 @@ export function Knob({
         <circle cx={dotX} cy={dotY} r={sw * 0.7} fill={color} />
         {/* centre circle */}
         <circle cx={cx} cy={cy} r={size * 0.12} fill="var(--bg-section)" stroke="var(--border-hover)" strokeWidth={0.5} />
+        {/* LFO modulation indicator — dashed outer ring */}
+        {modulated && (
+          <circle cx={cx} cy={cy} r={r + sw + 1.5} fill="none" stroke={color} strokeWidth={1}
+            strokeOpacity={0.7} strokeDasharray="3 3" />
+        )}
       </svg>
       {label      && <span className="knob-label">{label}</span>}
       {valueLabel !== undefined && <span className="knob-val">{valueLabel}</span>}

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useApp } from '../state/AppContext'
+import { useApp, useModulatedDests } from '../state/AppContext'
 import { Knob } from './Knob'
 import { Oscilloscope } from './Oscilloscope'
 import { StepGrid } from './StepGrid'
@@ -43,6 +43,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 
 export function LaneDSection() {
   const { state, dispatch } = useApp()
+  const mod = useModulatedDests()
   const { t, grain, granEnabled, granRecording } = state.laneD
   const granSends = state.laneC.sends.gran
 
@@ -73,11 +74,11 @@ export function LaneDSection() {
             <Knob value={(t.rate - 1) / 7} onChange={v => dispatch({ type: 'PATCH_LANE_D_T', patch: { rate: Math.round(1 + v * 7) } })}
               defaultValue={2 / 7} color={D} label="Rate" valueLabel={`÷${t.rate}`} />
             <Knob value={t.jitter} onChange={v => dispatch({ type: 'PATCH_LANE_D_T', patch: { jitter: v } })}
-              defaultValue={0.2} color={D} label="Jitter" valueLabel={fmt(t.jitter)} />
+              defaultValue={0.2} color={D} label="Jitter" valueLabel={fmt(t.jitter)} modulated={mod.has('laneD.jitter')} />
             <Knob value={t.gate} onChange={v => dispatch({ type: 'PATCH_LANE_D_T', patch: { gate: v } })}
               defaultValue={0.5} color={D} label="Gate" valueLabel={fmt(t.gate)} />
             <Knob value={t.bias} onChange={v => dispatch({ type: 'PATCH_LANE_D_T', patch: { bias: v } })}
-              defaultValue={0.5} color={D} label="Bias" valueLabel={fmt(t.bias)} />
+              defaultValue={0.5} color={D} label="Bias" valueLabel={fmt(t.bias)} modulated={mod.has('laneD.bias')} />
           </div>
           <div className="section-sep" />
           <div className="section-title" style={{ marginBottom: 4 }}>Trigger history</div>
@@ -124,33 +125,33 @@ export function LaneDSection() {
           <div className="knob-row" style={{ flexWrap: 'wrap' }}>
             <Knob value={grain.position}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { position: v } })}
-              defaultValue={0.05} color={D} label="Pos" valueLabel={fmt(grain.position)} />
+              defaultValue={0.05} color={D} label="Pos" valueLabel={fmt(grain.position)} modulated={mod.has('gran.position')} />
             <Knob value={grain.size}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { size: v } })}
               defaultValue={0.4} color={D} label="Size"
-              valueLabel={`${Math.round(20 + grain.size * 380)}ms`} />
+              valueLabel={`${Math.round(20 + grain.size * 380)}ms`} modulated={mod.has('gran.size')} />
             <Knob value={grain.density}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { density: v } })}
-              defaultValue={0.4} color={D} label="Dens" valueLabel={`${Math.round(1 + grain.density * 11)}`} />
+              defaultValue={0.4} color={D} label="Dens" valueLabel={`${Math.round(1 + grain.density * 11)}`} modulated={mod.has('gran.density')} />
             <Knob value={grain.pitch}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { pitch: snapPitch(v) } })}
               defaultValue={0.5} color={D} label="Pitch"
-              valueLabel={pitchLabel(grain.pitch)} />
+              valueLabel={pitchLabel(grain.pitch)} modulated={mod.has('gran.pitch')} />
             <Knob value={grain.spray}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { spray: v } })}
-              defaultValue={0.3} color={D} label="Spray" valueLabel={fmt(grain.spray)} />
+              defaultValue={0.3} color={D} label="Spray" valueLabel={fmt(grain.spray)} modulated={mod.has('gran.spray')} />
             <Knob value={grain.detune}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { detune: v } })}
-              defaultValue={0.1} color={D} label="Detun" valueLabel={fmt(grain.detune)} />
+              defaultValue={0.1} color={D} label="Detun" valueLabel={fmt(grain.detune)} modulated={mod.has('gran.detune')} />
             <Knob value={grain.width}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { width: v } })}
               defaultValue={0.5} color={D} label="Width" valueLabel={fmt(grain.width)} />
             <Knob value={grain.wander}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { wander: v } })}
-              defaultValue={0} color={D} label="Wander" valueLabel={fmt(grain.wander)} />
+              defaultValue={0} color={D} label="Wander" valueLabel={fmt(grain.wander)} modulated={mod.has('gran.wander')} />
             <Knob value={grain.level}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { level: v } })}
-              defaultValue={0.7} color={D} label="Level" valueLabel={fmt(grain.level)} />
+              defaultValue={0.7} color={D} label="Level" valueLabel={fmt(grain.level)} modulated={mod.has('gran.level')} />
             <Knob value={granSends.delay}
               onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'gran', patch: { delay: v } })}
               defaultValue={0.2} color={C} label="FX:Dly" valueLabel={fmt(granSends.delay)} />

@@ -100,3 +100,16 @@ export interface GranularParams {
   wander:         number   // 0–1: slow random-walk drift of position over time
   continuousMode: boolean  // false = triggered by Marbles, true = self-clocked
 }
+
+// All modulation destinations — all normalized to 0–1 (AudioEngine.applyModulation denormalizes).
+export type ModDest =
+  | 'synth.timbre' | 'synth.morph' | 'synth.harmonics' | 'synth.decay' | 'synth.level'
+  | 'laneA.jitter' | 'laneA.bias'
+  | 'laneB.density' | 'laneB.jitter'
+  | 'kick.decay' | 'kick.snap'
+  | 'snare.snap' | 'snare.tone' | 'snare.body' | 'snare.decay'
+  | 'hat.open' | 'hat.tone'
+  | 'gran.position' | 'gran.size' | 'gran.density' | 'gran.pitch'
+  | 'gran.spray' | 'gran.detune' | 'gran.wander' | 'gran.level'
+  | 'laneD.jitter' | 'laneD.bias'
+  | 'delay.feedback' | 'delay.time'

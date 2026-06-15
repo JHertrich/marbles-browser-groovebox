@@ -1,4 +1,4 @@
-import type { AppState, LaneAState, LaneBState, LaneCState, LaneDState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams, GranularParams } from './types'
+import type { AppState, LaneAState, LaneBState, LaneCState, LaneDState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams, GranularParams, LFOState, ModDest } from './types'
 import { DEFAULT_STATE } from './types'
 import { SCALE_MODE_NAMES, ROOT_NOTES } from '../sequencer/scales'
 
@@ -37,6 +37,9 @@ export type Action =
   | { type: 'RANDOMIZE_LANE_D_T' }
   | { type: 'RESET' }
   | { type: 'LOAD_PRESET';          state: AppState }
+  | { type: 'PATCH_LFO';            index: 0|1|2|3; patch: Partial<LFOState> }
+  | { type: 'SET_MOD_SLOT';         lfoIndex: 0|1|2|3; dest: ModDest; amount: number }
+  | { type: 'REMOVE_MOD_SLOT';      lfoIndex: 0|1|2|3; dest: ModDest }
 
 const rnd = Math.random
 const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(rnd() * arr.length)]
@@ -330,6 +333,26 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...DEFAULT_STATE, isPlaying: state.isPlaying }
     case 'LOAD_PRESET':
       return action.state
+    case 'PATCH_LFO': {
+      const lfos = [...state.mod.lfos] as typeof state.mod.lfos
+      lfos[action.index] = { ...lfos[action.index], ...action.patch }
+      return { ...state, mod: { ...state.mod, lfos } }
+    }
+    case 'SET_MOD_SLOT': {
+      const existing = state.mod.slots.findIndex(s => s.lfoIndex === action.lfoIndex && s.dest === action.dest)
+      const slots = existing >= 0
+        ? state.mod.slots.map((s, i) => i === existing ? { ...s, amount: action.amount } : s)
+        : [...state.mod.slots, { lfoIndex: action.lfoIndex, dest: action.dest, amount: action.amount }]
+      return { ...state, mod: { ...state.mod, slots } }
+    }
+    case 'REMOVE_MOD_SLOT':
+      return {
+        ...state,
+        mod: {
+          ...state.mod,
+          slots: state.mod.slots.filter(s => !(s.lfoIndex === action.lfoIndex && s.dest === action.dest)),
+        },
+      }
     default:
       return state
   }

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useApp } from '../state/AppContext'
+import { useApp, useModulatedDests } from '../state/AppContext'
 import { Knob } from './Knob'
 import { StepGrid } from './StepGrid'
 import { PeakMeter } from './PeakMeter'
@@ -26,6 +26,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 
 export function LaneBSection() {
   const { state, dispatch } = useApp()
+  const mod = useModulatedDests()
   const { density, jitter, length, kick, snare, hat } = state.laneB
   const { sends } = state.laneC
 
@@ -55,9 +56,9 @@ export function LaneBSection() {
         </div>
         <div className="knob-row">
           <Knob value={density} onChange={v => dispatch({ type: 'PATCH_LANE_B', patch: { density: v } })}
-            defaultValue={0.7} color={B} label="Density" valueLabel={fmt(density)} />
+            defaultValue={0.7} color={B} label="Density" valueLabel={fmt(density)} modulated={mod.has('laneB.density')} />
           <Knob value={jitter} onChange={v => dispatch({ type: 'PATCH_LANE_B', patch: { jitter: v } })}
-            defaultValue={0.1} color={B} label="Jitter" valueLabel={fmt(jitter)} />
+            defaultValue={0.1} color={B} label="Jitter" valueLabel={fmt(jitter)} modulated={mod.has('laneB.jitter')} />
           <div className="knob-group">
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
               <span className="knob-label" style={{ whiteSpace: 'nowrap' }}>Length</span>
@@ -94,9 +95,9 @@ export function LaneBSection() {
             <Knob value={kick.tune / 127} onChange={v => dispatch({ type: 'PATCH_KICK', patch: { tune: Math.round(v * 60 + 24) } })}
               defaultValue={36 / 127} size={28} color={A} label="Tune" valueLabel={`${kick.tune}`} />
             <Knob value={kick.decay} onChange={v => dispatch({ type: 'PATCH_KICK', patch: { decay: v } })}
-              defaultValue={0.5} size={28} color={A} label="Decay" valueLabel={fmt(kick.decay)} />
+              defaultValue={0.5} size={28} color={A} label="Decay" valueLabel={fmt(kick.decay)} modulated={mod.has('kick.decay')} />
             <Knob value={kick.snap} onChange={v => dispatch({ type: 'PATCH_KICK', patch: { snap: v } })}
-              defaultValue={0.6} size={28} color={A} label="Snap" valueLabel={fmt(kick.snap)} />
+              defaultValue={0.6} size={28} color={A} label="Snap" valueLabel={fmt(kick.snap)} modulated={mod.has('kick.snap')} />
             <Knob value={sends.kick.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'kick', patch: { delay: v } })}
               defaultValue={0.05} size={28} color={C} label="Dly" valueLabel={fmt(sends.kick.delay)} />
             <Knob value={sends.kick.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'kick', patch: { reverb: v } })}
@@ -125,13 +126,13 @@ export function LaneBSection() {
           <StepGrid subscribe={snareSub} color={B} cells={8} />
           <div className="knob-row" style={{ justifyContent: 'center', marginTop: 8 }}>
             <Knob value={snare.snap} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { snap: v } })}
-              defaultValue={0.65} size={28} color={B} label="Snap" valueLabel={fmt(snare.snap)} />
+              defaultValue={0.65} size={28} color={B} label="Snap" valueLabel={fmt(snare.snap)} modulated={mod.has('snare.snap')} />
             <Knob value={snare.tone} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { tone: v } })}
-              defaultValue={0.5} size={28} color={B} label="Tone" valueLabel={fmt(snare.tone)} />
+              defaultValue={0.5} size={28} color={B} label="Tone" valueLabel={fmt(snare.tone)} modulated={mod.has('snare.tone')} />
             <Knob value={snare.body} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { body: v } })}
-              defaultValue={0.5} size={28} color={B} label="Body" valueLabel={fmt(snare.body)} />
+              defaultValue={0.5} size={28} color={B} label="Body" valueLabel={fmt(snare.body)} modulated={mod.has('snare.body')} />
             <Knob value={snare.decay} onChange={v => dispatch({ type: 'PATCH_SNARE', patch: { decay: v } })}
-              defaultValue={0.4} size={28} color={B} label="Decay" valueLabel={fmt(snare.decay)} />
+              defaultValue={0.4} size={28} color={B} label="Decay" valueLabel={fmt(snare.decay)} modulated={mod.has('snare.decay')} />
             <Knob value={sends.snare.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'snare', patch: { delay: v } })}
               defaultValue={0.15} size={28} color={C} label="Dly" valueLabel={fmt(sends.snare.delay)} />
             <Knob value={sends.snare.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'snare', patch: { reverb: v } })}
@@ -160,9 +161,9 @@ export function LaneBSection() {
           <StepGrid subscribe={hatSub} color={HAT} cells={8} />
           <div className="knob-row" style={{ justifyContent: 'center', marginTop: 8 }}>
             <Knob value={hat.open} onChange={v => dispatch({ type: 'PATCH_HAT', patch: { open: v } })}
-              defaultValue={0.2} size={28} color={HAT} label="Open" valueLabel={fmt(hat.open)} />
+              defaultValue={0.2} size={28} color={HAT} label="Open" valueLabel={fmt(hat.open)} modulated={mod.has('hat.open')} />
             <Knob value={hat.tone} onChange={v => dispatch({ type: 'PATCH_HAT', patch: { tone: v } })}
-              defaultValue={0.7} size={28} color={HAT} label="Tone" valueLabel={fmt(hat.tone)} />
+              defaultValue={0.7} size={28} color={HAT} label="Tone" valueLabel={fmt(hat.tone)} modulated={mod.has('hat.tone')} />
             <Knob value={sends.hat.delay} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'hat', patch: { delay: v } })}
               defaultValue={0.03} size={28} color={C} label="Dly" valueLabel={fmt(sends.hat.delay)} />
             <Knob value={sends.hat.reverb} onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'hat', patch: { reverb: v } })}

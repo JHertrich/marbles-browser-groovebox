@@ -6,9 +6,10 @@ import type {
   SnareParams,
   HatParams,
   GranularParams,
+  ModDest,
 } from './types'
 
-export type { SynthParams, KickParams, SnareParams, HatParams, GranularParams }
+export type { SynthParams, KickParams, SnareParams, HatParams, GranularParams, ModDest }
 
 // Granular AudioWorkletProcessor — loaded via Blob URL so no extra build config is needed.
 const GRANULAR_PROCESSOR = `
@@ -551,6 +552,34 @@ class AudioEngine {
     if (!this.ctx || !this.granularNode) return
     this.granularNode.parameters.get('record')!
       .setValueAtTime(enabled ? 1 : 0, this.ctx.currentTime + 0.016)
+  }
+
+  // ─── LFO modulation ──────────────────────────────────────────────────────
+  // Called by LFOEngine on each tick. `value` is always 0–1 normalized.
+  // JS-param destinations (laneA/B/D jitter etc.) are handled in LFOEngine directly.
+  applyModulation(dest: ModDest, value: number): void {
+    if (!this.ctx) return
+    const t = this.ctx.currentTime
+    const c = (v: number) => Math.max(0, Math.min(1, v))
+    const cv = c(value)
+    switch (dest) {
+      case 'synth.timbre':    this.synthVoice?.timbreAudioParameter.setValueAtTime(cv, t); break
+      case 'synth.morph':     this.synthVoice?.morphAudioParameter.setValueAtTime(cv, t); break
+      case 'synth.harmonics': this.synthVoice?.harmonicsAudioParameter.setValueAtTime(cv, t); break
+      case 'synth.decay':     this.synthVoice?.decayAudioParameter.setValueAtTime(cv, t); break
+      case 'synth.level':     this.synthVoice?.volumeAudioParameter.setValueAtTime(cv, t); break
+      case 'gran.position':   this.granularNode?.parameters.get('position')?.setValueAtTime(cv, t); break
+      case 'gran.size':       this.granularNode?.parameters.get('size')?.setValueAtTime(cv, t); break
+      case 'gran.density':    this.granularNode?.parameters.get('density')?.setValueAtTime(cv, t); break
+      case 'gran.pitch':      this.granularNode?.parameters.get('pitch')?.setValueAtTime(cv, t); break
+      case 'gran.spray':      this.granularNode?.parameters.get('spray')?.setValueAtTime(cv, t); break
+      case 'gran.detune':     this.granularNode?.parameters.get('detune')?.setValueAtTime(cv, t); break
+      case 'gran.wander':     this.granularNode?.parameters.get('wander')?.setValueAtTime(cv, t); break
+      case 'gran.level':      this.granularNode?.parameters.get('level')?.setValueAtTime(cv, t); break
+      case 'delay.feedback':  this.delayFeedback?.gain.setValueAtTime(Math.min(cv * 0.85, 0.85), t); break
+      case 'delay.time':      this.delayNode?.delayTime.setValueAtTime(cv * 1.999, t); break
+      // JS-param dests (laneA/B/D jitter/bias, drum params) handled in LFOEngine
+    }
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

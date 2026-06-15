@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useApp } from '../state/AppContext'
+import { useApp, useModulatedDests } from '../state/AppContext'
 import { Knob } from './Knob'
 import { StepGrid } from './StepGrid'
 import { Oscilloscope } from './Oscilloscope'
@@ -27,6 +27,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 
 export function LaneASection() {
   const { state, dispatch } = useApp()
+  const mod = useModulatedDests()
   const { t, x, synth, synthEnabled } = state.laneA
   const synthSends = state.laneC.sends.synth
 
@@ -61,11 +62,11 @@ export function LaneASection() {
             <Knob value={(t.rate - 1) / 7} onChange={v => dispatch({ type: 'PATCH_LANE_A_T', patch: { rate: Math.round(1 + v * 7) } })}
               defaultValue={1 / 7} color={A} label="Rate" valueLabel={`÷${t.rate}`} />
             <Knob value={t.jitter} onChange={v => dispatch({ type: 'PATCH_LANE_A_T', patch: { jitter: v } })}
-              defaultValue={0.15} color={A} label="Jitter" valueLabel={fmt(t.jitter)} />
+              defaultValue={0.15} color={A} label="Jitter" valueLabel={fmt(t.jitter)} modulated={mod.has('laneA.jitter')} />
             <Knob value={t.gate} onChange={v => dispatch({ type: 'PATCH_LANE_A_T', patch: { gate: v } })}
               defaultValue={0.5} color={A} label="Gate" valueLabel={fmt(t.gate)} />
             <Knob value={t.bias} onChange={v => dispatch({ type: 'PATCH_LANE_A_T', patch: { bias: v } })}
-              defaultValue={0.65} color={A} label="Bias" valueLabel={fmt(t.bias)} />
+              defaultValue={0.65} color={A} label="Bias" valueLabel={fmt(t.bias)} modulated={mod.has('laneA.bias')} />
           </div>
           <div className="section-sep" />
           <div className="section-title" style={{ marginBottom: 4 }}>Trigger history</div>
@@ -164,16 +165,17 @@ export function LaneASection() {
         </div>
         <div className="knob-row">
           {([
-            ['timbre',    'Timbre',  0.5],
-            ['morph',     'Morph',   0.3],
-            ['harmonics', 'Harm.',   0.7],
-            ['decay',     'Decay',   0.6],
-            ['level',     'Level',   0.8],
-          ] as [keyof typeof synth, string, number][]).map(([k, lbl, def]) => (
+            ['timbre',    'Timbre',  0.5, 'synth.timbre'],
+            ['morph',     'Morph',   0.3, 'synth.morph'],
+            ['harmonics', 'Harm.',   0.7, 'synth.harmonics'],
+            ['decay',     'Decay',   0.6, 'synth.decay'],
+            ['level',     'Level',   0.8, 'synth.level'],
+          ] as [keyof typeof synth, string, number, string][]).map(([k, lbl, def, dest]) => (
             <Knob key={k}
               value={synth[k] as number}
               onChange={v => dispatch({ type: 'PATCH_LANE_A_SYNTH', patch: { [k]: v } })}
-              defaultValue={def} color={A} label={lbl} valueLabel={fmt(synth[k] as number)} />
+              defaultValue={def} color={A} label={lbl} valueLabel={fmt(synth[k] as number)}
+              modulated={mod.has(dest as Parameters<typeof mod.has>[0])} />
           ))}
           <Knob value={synthSends.delay}
             onChange={v => dispatch({ type: 'PATCH_LANE_C_SEND', voice: 'synth', patch: { delay: v } })}

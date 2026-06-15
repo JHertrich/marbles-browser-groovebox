@@ -198,3 +198,96 @@ input[type="range"] {
 
 /* === FOOTER === */
 .footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--border); }
+
+/* === MODULATION SECTION === */
+.mod-section { margin-top: 12px; }
+.tag-mod { background: #2a1a3a; color: #b07fd4; border-color: #5a3a7a; }
+
+.mod-body { padding: 10px 0; }
+
+/* LFO panels row */
+.lfo-panels { display: flex; gap: 8px; margin-bottom: 16px; }
+.lfo-panel {
+  flex: 1; background: var(--bg-section); border: 0.5px solid var(--border);
+  border-radius: var(--radius-md); padding: 8px; min-width: 0;
+}
+.lfo-panel-header { font-size: 10px; font-family: var(--font-mono); font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+
+/* Waveform buttons */
+.lfo-waveform-row { display: flex; gap: 2px; margin-bottom: 6px; }
+.lfo-wbtn {
+  flex: 1; background: transparent; border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono);
+  font-size: 10px; padding: 3px 2px; cursor: pointer; transition: border-color 0.15s, color 0.15s;
+}
+.lfo-wbtn:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+.lfo-wbtn-on { background: transparent; }
+
+/* Rate row */
+.lfo-rate-row { display: flex; align-items: center; gap: 4px; min-height: 44px; }
+.lfo-sync-btn {
+  background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text-muted); font-family: var(--font-mono); font-size: 9px; padding: 3px 5px;
+  cursor: pointer; letter-spacing: 0.08em; white-space: nowrap;
+}
+.lfo-sync-btn:hover { border-color: var(--border-hover); }
+.lfo-sync-on { }
+.lfo-div-select {
+  flex: 1; background: var(--bg-element); border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--font-mono);
+  font-size: 10px; padding: 4px 4px; cursor: pointer; outline: none;
+}
+
+/* LFO value gauge */
+.lfo-gauge {
+  position: relative; height: 6px; background: var(--bg-element);
+  border-radius: 3px; margin-top: 8px; overflow: hidden;
+}
+.lfo-gauge-center {
+  position: absolute; left: 50%; top: 0; width: 1px; height: 100%;
+  background: var(--border-hover); transform: translateX(-50%);
+}
+.lfo-gauge-fill {
+  position: absolute; top: 0; height: 100%; opacity: 0.5; transition: none;
+  border-radius: 3px;
+}
+.lfo-gauge-cursor {
+  position: absolute; top: 0; width: 3px; height: 100%;
+  border-radius: 2px; transform: translateX(-50%); transition: none;
+}
+
+/* Matrix */
+.mod-matrix { font-size: 11px; }
+.mrow-header { display: flex; align-items: center; padding-bottom: 4px;
+  border-bottom: 0.5px solid var(--border); margin-bottom: 4px; }
+.mgroup-label {
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); padding: 6px 0 2px;
+}
+.mrow { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
+.mrow-label { flex: 1; color: var(--text-secondary); font-size: 11px; min-width: 90px; }
+.mcol-head { width: 44px; text-align: center; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; }
+
+/* Matrix cells */
+.mcell { width: 44px; height: 36px; flex-shrink: 0; display: flex;
+  align-items: center; justify-content: center; border-radius: var(--radius-sm); }
+.mcell-empty {
+  border: 0.5px dashed var(--border); cursor: pointer; transition: border-color 0.15s;
+}
+.mcell-empty:hover { border-color: var(--border-hover); background: var(--bg-element); }
+.mcell-empty::after { content: '+'; color: var(--text-muted); font-size: 12px; }
+.mcell-empty:hover::after { color: var(--text-secondary); }
+.mcell-active {
+  border: 0.5px solid var(--mc, var(--border)); background: var(--bg-element);
+  position: relative; flex-direction: column; gap: 0;
+  padding: 2px;
+}
+.mcell-remove {
+  position: absolute; top: 0; right: 0; width: 12px; height: 12px;
+  background: transparent; border: none; color: var(--text-muted);
+  font-size: 9px; cursor: pointer; line-height: 12px; text-align: center;
+  opacity: 0; transition: opacity 0.1s;
+}
+.mcell-active:hover .mcell-remove { opacity: 1; }
