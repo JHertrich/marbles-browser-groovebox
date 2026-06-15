@@ -41,6 +41,8 @@ export type Action =
   | { type: 'SET_MOD_SLOT';         lfoIndex: 0|1|2|3; dest: ModDest; amount: number }
   | { type: 'REMOVE_MOD_SLOT';      lfoIndex: 0|1|2|3; dest: ModDest }
   | { type: 'RANDOMIZE_MOD' }
+  | { type: 'RANDOMIZE_LFOS' }
+  | { type: 'RANDOMIZE_MOD_SLOTS' }
 
 const rnd = Math.random
 const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(rnd() * arr.length)]
@@ -334,7 +336,9 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...DEFAULT_STATE, isPlaying: state.isPlaying }
     case 'LOAD_PRESET':
       return action.state
-    case 'RANDOMIZE_MOD': {
+    case 'RANDOMIZE_MOD':
+    case 'RANDOMIZE_LFOS':
+    case 'RANDOMIZE_MOD_SLOTS': {
       const WAVEFORMS: LFOWaveform[] = ['sine', 'triangle', 'square', 'sample-hold']
       const SYNC_DIVS: LFOSyncDiv[] = ['4/1', '2/1', '1/1', '1/2', '1/4', '1/8', '1/16']
       const ALL_DESTS: ModDest[] = [
@@ -350,20 +354,23 @@ export function reducer(state: AppState, action: Action): AppState {
         'delay.feedback', 'delay.time',
         'reverb.size', 'reverb.decay', 'reverb.level',
       ]
-      const lfos = state.mod.lfos.map(() => ({
+      const randLfos = () => state.mod.lfos.map(() => ({
         waveform: pick(WAVEFORMS),
         rate: rnd(),
         synced: rnd() > 0.65,
         syncDiv: pick(SYNC_DIVS),
         depth: 0.25 + rnd() * 0.75,
       })) as typeof state.mod.lfos
-      const slotCount = 4 + Math.floor(rnd() * 5)
-      const shuffled = [...ALL_DESTS].sort(() => rnd() - 0.5).slice(0, slotCount)
-      const slots = shuffled.map(dest => ({
-        lfoIndex: Math.floor(rnd() * 4) as 0|1|2|3,
-        dest,
-        amount: (rnd() > 0.5 ? 1 : -1) * (0.3 + rnd() * 0.7),
-      }))
+      const randSlots = () => {
+        const count = 4 + Math.floor(rnd() * 5)
+        return [...ALL_DESTS].sort(() => rnd() - 0.5).slice(0, count).map(dest => ({
+          lfoIndex: Math.floor(rnd() * 4) as 0|1|2|3,
+          dest,
+          amount: (rnd() > 0.5 ? 1 : -1) * (0.3 + rnd() * 0.7),
+        }))
+      }
+      const lfos  = action.type !== 'RANDOMIZE_MOD_SLOTS' ? randLfos()  : state.mod.lfos
+      const slots = action.type !== 'RANDOMIZE_LFOS'     ? randSlots() : state.mod.slots
       return { ...state, mod: { lfos, slots } }
     }
     case 'PATCH_LFO': {

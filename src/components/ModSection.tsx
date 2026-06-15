@@ -256,12 +256,7 @@ export function ModSection() {
       <div className="lane-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="lane-tag tag-mod">MOD</span>
         <span className="lane-name">LFO Modulation Matrix</span>
-        <button
-          className="btn-voice-rnd"
-          title="Randomize all LFOs and mod routing"
-          onClick={e => { e.stopPropagation(); dispatch({ type: 'RANDOMIZE_MOD' }) }}
-        >⚄</button>
-        <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-muted)' }}>
+        <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--text-muted)' }}>
           {open ? '▲ collapse' : '▼ expand'}
         </span>
       </div>
@@ -269,11 +264,21 @@ export function ModSection() {
       {open && (
         <div className="mod-body">
           {/* LFO panels */}
+          <div className="mod-sub-header">
+            <span className="mod-sub-title">LFOs</span>
+            <button className="btn-voice-rnd" title="Randomize LFO parameters"
+              onClick={() => dispatch({ type: 'RANDOMIZE_LFOS' })}>⚄</button>
+          </div>
           <div className="lfo-panels">
             {[0, 1, 2, 3].map(i => <LFOPanel key={i} index={i} />)}
           </div>
 
           {/* Modulation matrix */}
+          <div className="mod-sub-header" style={{ marginTop: 12 }}>
+            <span className="mod-sub-title">Matrix</span>
+            <button className="btn-voice-rnd" title="Randomize mod routing and amounts"
+              onClick={() => dispatch({ type: 'RANDOMIZE_MOD_SLOTS' })}>⚄</button>
+          </div>
           <div className="mod-matrix">
             {/* Header row */}
             <div className="mrow mrow-header">

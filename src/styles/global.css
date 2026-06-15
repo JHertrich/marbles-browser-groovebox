@@ -205,6 +205,11 @@ input[type="range"] {
 
 .mod-body { padding: 10px 0; }
 
+/* Sub-section headers inside mod body */
+.mod-sub-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.mod-sub-title { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); }
+
 /* LFO panels row */
 .lfo-panels { display: flex; gap: 8px; margin-bottom: 16px; }
 .lfo-panel {
