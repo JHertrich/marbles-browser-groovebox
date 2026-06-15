@@ -163,8 +163,13 @@ input[type="range"] {
 .btn-voice-rnd { background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; padding: 2px 7px; cursor: pointer; margin-left: auto; }
 .btn-voice-rnd:hover { border-color: var(--border-hover); color: var(--text-secondary); }
 
+/* Granular mode toggle (triggered vs continuous) */
+.btn-mode { background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; cursor: pointer; }
+.btn-mode.btn-mode-on { border-color: var(--accent-d); color: var(--accent-d); }
+.btn-mode:hover { border-color: var(--border-hover); }
+
 /* Granular record / freeze toggle */
-.btn-rec { background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; cursor: pointer; margin-left: 6px; }
+.btn-rec { background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; cursor: pointer; }
 .btn-rec.btn-rec-on { border-color: #e04444; color: #e04444; animation: rec-pulse 1.4s ease-in-out infinite; }
 .btn-rec:hover { border-color: var(--border-hover); }
 

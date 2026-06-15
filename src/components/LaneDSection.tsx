@@ -80,16 +80,21 @@ export function LaneDSection() {
 
         {/* ── Granular engine ── */}
         <div className="section">
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
             <button
               className={`voice-toggle${granEnabled ? ' voice-toggle-on' : ''}`}
-              style={{ '--vc': D, marginRight: 8 } as React.CSSProperties}
+              style={{ '--vc': D } as React.CSSProperties}
               onClick={() => dispatch({ type: 'TOGGLE_GRAN_ENABLED' })}
               title={granEnabled ? 'Mute granular' : 'Unmute granular'}
             />
             <span className="section-title" style={{ marginBottom: 0, opacity: granEnabled ? 1 : 0.4 }}>
-              Granulator II — grain engine
+              Granulator II
             </span>
+            <button
+              className={`btn-mode${grain.continuousMode ? ' btn-mode-on' : ''}`}
+              onClick={() => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { continuousMode: !grain.continuousMode } })}
+              title={grain.continuousMode ? 'Switch to triggered mode' : 'Switch to continuous drone mode'}
+            >{grain.continuousMode ? '~ CONT' : '◈ TRIG'}</button>
             <button
               className={`btn-rec${granRecording ? ' btn-rec-on' : ''}`}
               onClick={() => dispatch({ type: 'TOGGLE_GRAN_RECORDING' })}
@@ -122,6 +127,9 @@ export function LaneDSection() {
             <Knob value={grain.width}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { width: v } })}
               defaultValue={0.5} color={D} label="Width" valueLabel={fmt(grain.width)} />
+            <Knob value={grain.wander}
+              onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { wander: v } })}
+              defaultValue={0} color={D} label="Wander" valueLabel={fmt(grain.wander)} />
             <Knob value={grain.level}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { level: v } })}
               defaultValue={0.7} color={D} label="Level" valueLabel={fmt(grain.level)} />

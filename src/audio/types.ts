@@ -88,12 +88,14 @@ export const PLAITS_ENGINE_NAMES: Record<number, string> = {
 export const SYNTH_ENGINES = [0, 1, 2, 4, 6] as const  // melodic subset shown in UI
 
 export interface GranularParams {
-  position: number  // 0–1: read position (0 = most recent, 1 = oldest in 4 s buffer)
-  size:     number  // 0–1 → 20 ms – 400 ms grain duration
-  density:  number  // 0–1 → 1–12 grains per trigger
-  pitch:    number  // 0–1 → −2 oct (0) to +2 oct (1), unity at 0.5
-  spray:    number  // 0–1: random position scatter up to ±0.5 s
-  detune:   number  // 0–1: random pitch variation per grain, ±2 semitones max
-  width:    number  // 0–1: stereo spread
-  level:    number  // 0–1
+  position:       number   // 0–1: center read position (0 = most recent, 1 = oldest in 4 s buffer)
+  size:           number   // 0–1 → 20 ms – 400 ms grain duration
+  density:        number   // trig: 1–12 grains per trigger  |  cont: 1–16 grains/sec (exponential)
+  pitch:          number   // 0–1 → −2 oct (0) to +2 oct (1), unity at 0.5
+  spray:          number   // 0–1: random position scatter up to ±0.5 s
+  detune:         number   // 0–1: random pitch variation per grain, ±2 semitones max
+  width:          number   // 0–1: stereo spread
+  level:          number   // 0–1
+  wander:         number   // 0–1: slow random-walk drift of position over time
+  continuousMode: boolean  // false = triggered by Marbles, true = self-clocked
 }

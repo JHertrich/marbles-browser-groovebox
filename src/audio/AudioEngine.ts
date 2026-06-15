@@ -17,32 +17,37 @@ class GranularProcessor extends AudioWorkletProcessor {
   static get parameterDescriptors() {
     return [
       { name: 'position', defaultValue: 0.05, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'size',     defaultValue: 0.4, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'density',  defaultValue: 0.4, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'pitch',    defaultValue: 0.5, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'spray',    defaultValue: 0.3, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'detune',   defaultValue: 0.1, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'width',    defaultValue: 0.5, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'level',    defaultValue: 0.7, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
-      { name: 'gate',     defaultValue: 0,   minValue: 0, maxValue: 1, automationRate: 'a-rate' },
-      { name: 'record',   defaultValue: 1,   minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'size',     defaultValue: 0.4,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'density',  defaultValue: 0.4,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'pitch',    defaultValue: 0.5,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'spray',    defaultValue: 0.3,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'detune',   defaultValue: 0.1,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'width',    defaultValue: 0.5,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'level',    defaultValue: 0.7,  minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'gate',     defaultValue: 0,    minValue: 0, maxValue: 1, automationRate: 'a-rate' },
+      { name: 'record',   defaultValue: 1,    minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'wander',   defaultValue: 0,    minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'mode',     defaultValue: 0,    minValue: 0, maxValue: 1, automationRate: 'k-rate' },
     ]
   }
   constructor(options) {
     super(options)
-    this.bufLen   = Math.ceil(sampleRate * 4)
-    this.bufL     = new Float32Array(this.bufLen)
-    this.bufR     = new Float32Array(this.bufLen)
-    this.writePos = 0
-    this.grains   = []
-    this.prevGate = 0
+    this.bufLen       = Math.ceil(sampleRate * 4)
+    this.bufL         = new Float32Array(this.bufLen)
+    this.bufR         = new Float32Array(this.bufLen)
+    this.writePos     = 0
+    this.grains       = []
+    this.prevGate     = 0
+    this.wanderOffset = 0   // slow random-walk offset applied to position (−0.5 … +0.5)
+    this.contPhase    = 0   // block counter for continuous-mode grain clock
   }
   process(inputs, outputs, parameters) {
-    const inL  = inputs[0]?.[0]
-    const inR  = inputs[0]?.[1]
+    const inL  = inputs[0] !== undefined ? inputs[0][0] : undefined
+    const inR  = inputs[0] !== undefined ? inputs[0][1] : undefined
     const outL = outputs[0][0]
-    const outR = outputs[0][1] ?? outputs[0][0]
+    const outR = outputs[0].length > 1 ? outputs[0][1] : outputs[0][0]
     const bs   = outL.length
+
     const pos    = parameters.position[0]
     const sz     = parameters.size[0]
     const dens   = parameters.density[0]
@@ -52,35 +57,72 @@ class GranularProcessor extends AudioWorkletProcessor {
     const width  = parameters.width[0]
     const lvl    = parameters.level[0]
     const gate   = parameters.gate
+    const wander = parameters.wander[0]
+    const mode   = parameters.mode[0]
+
     const grainLen   = Math.floor(sampleRate * (0.02 + sz * 0.38))
     const baseRate   = Math.pow(2, (pit - 0.5) * 4)
-    const grainCount = Math.max(1, Math.round(1 + dens * 11))
-    const stagger    = Math.max(1, Math.floor(grainLen / (2 * Math.max(grainCount, 2))))
-    const bufOffset  = Math.floor(pos * Math.max(1, this.bufLen - grainLen))
     const sprayLen   = Math.floor(spray * sampleRate * 0.5)
     const detuneST   = detune * 2
+
+    // Wander: slow bounded random walk that drifts the effective read position.
+    // Rate 0.00015/block ≈ full ±0.5 range traversal in ~20 s at wander=1.
+    if (wander > 0) {
+      this.wanderOffset += 0.00015 * (Math.random() * 2 - 1)
+      if (this.wanderOffset >  0.5) this.wanderOffset =  0.5
+      if (this.wanderOffset < -0.5) this.wanderOffset = -0.5
+    }
+    const effPos = pos + this.wanderOffset * wander
+    const clPos  = effPos < 0 ? 0 : effPos > 1 ? 1 : effPos
+    const bufOffset = Math.floor(clPos * Math.max(1, this.bufLen - grainLen))
+
+    // Continuous mode: one grain per self-clocked interval, density → grains/sec.
+    // 2^(dens*4) gives 1–16 grains/sec on an exponential curve (musically natural).
+    if (mode >= 0.5) {
+      const grainsPerSec   = Math.pow(2, dens * 4)
+      const blocksPerGrain = Math.max(1, Math.round((sampleRate / bs) / grainsPerSec))
+      this.contPhase++
+      if (this.contPhase >= blocksPerGrain && this.grains.length < MAX_GRAINS) {
+        this.contPhase = 0
+        const scatter = Math.floor((Math.random() * 2 - 1) * sprayLen)
+        const rp      = (this.writePos - bufOffset + scatter + this.bufLen * 8) % this.bufLen
+        const rate    = baseRate * Math.pow(2, (Math.random() * 2 - 1) * detuneST / 12)
+        const pan     = (Math.random() * 2 - 1) * width
+        this.grains.push({ rp, rem: grainLen, tot: grainLen, rate, pan, delay: 0 })
+      }
+    }
+
     for (let i = 0; i < bs; i++) {
+      // Record synth input into circular buffer
       if (parameters.record[0] >= 0.5) {
         this.bufL[this.writePos] = inL ? inL[i] : 0
         this.bufR[this.writePos] = inR ? inR[i] : (inL ? inL[i] : 0)
         this.writePos = (this.writePos + 1) % this.bufLen
       }
-      const g = gate.length > 1 ? gate[i] : gate[0]
-      if (g > 0.5 && this.prevGate <= 0.5) {
-        for (let gi = 0; gi < grainCount && this.grains.length < MAX_GRAINS; gi++) {
-          const scatter = Math.floor((Math.random() * 2 - 1) * sprayLen)
-          const rp      = (this.writePos - bufOffset + scatter + this.bufLen * 8) % this.bufLen
-          const rate    = baseRate * Math.pow(2, (Math.random() * 2 - 1) * detuneST / 12)
-          const pan     = (Math.random() * 2 - 1) * width
-          this.grains.push({ rp, rem: grainLen, tot: grainLen, rate, pan, delay: gi * stagger })
+
+      // Triggered mode: spawn a burst of grains on each gate rising edge
+      if (mode < 0.5) {
+        const g = gate.length > 1 ? gate[i] : gate[0]
+        if (g > 0.5 && this.prevGate <= 0.5) {
+          const grainCount = Math.max(1, Math.round(1 + dens * 11))
+          const stagger    = Math.max(1, Math.floor(grainLen / (2 * Math.max(grainCount, 2))))
+          for (let gi = 0; gi < grainCount && this.grains.length < MAX_GRAINS; gi++) {
+            const scatter = Math.floor((Math.random() * 2 - 1) * sprayLen)
+            const rp      = (this.writePos - bufOffset + scatter + this.bufLen * 8) % this.bufLen
+            const rate    = baseRate * Math.pow(2, (Math.random() * 2 - 1) * detuneST / 12)
+            const pan     = (Math.random() * 2 - 1) * width
+            this.grains.push({ rp, rem: grainLen, tot: grainLen, rate, pan, delay: gi * stagger })
+          }
         }
+        this.prevGate = g
       }
-      this.prevGate = g
+
+      // Sum all active grains
       let sL = 0, sR = 0
       for (let gi = this.grains.length - 1; gi >= 0; gi--) {
         const gr = this.grains[gi]
         if (gr.delay > 0) { gr.delay--; continue }
-        if (gr.rem <= 0)  { this.grains.splice(gi, 1); continue }
+        if (gr.rem   <= 0) { this.grains.splice(gi, 1); continue }
         const atkLen  = Math.max(4, Math.floor(gr.tot * 0.1))
         const elapsed = gr.tot - gr.rem
         const amp = elapsed < atkLen ? elapsed / atkLen : gr.rem < atkLen ? gr.rem / atkLen : 1
@@ -487,6 +529,8 @@ class AudioEngine {
     p.get('detune')!.linearRampToValueAtTime(params.detune, t)
     p.get('width')!.linearRampToValueAtTime(params.width, t)
     p.get('level')!.linearRampToValueAtTime(params.level, t)
+    p.get('wander')!.linearRampToValueAtTime(params.wander, t)
+    p.get('mode')!.setValueAtTime(params.continuousMode ? 1 : 0, t)
   }
 
   triggerGranular(when = 0): void {

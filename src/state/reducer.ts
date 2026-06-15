@@ -95,7 +95,7 @@ function randD(laneD: LaneDState): LaneDState {
       length: 4 + Math.floor(rnd() * 29),
     },
     grain: {
-      position: rnd(),
+      position: rnd() * 0.5,
       size: 0.1 + rnd() * 0.9,
       density: rnd(),
       pitch: 0.2 + rnd() * 0.6,
@@ -103,6 +103,8 @@ function randD(laneD: LaneDState): LaneDState {
       detune: rnd() * 0.5,
       width: rnd(),
       level: 0.4 + rnd() * 0.6,
+      wander: rnd() * 0.6,
+      continuousMode: laneD.grain.continuousMode,  // preserve mode on randomize
     },
   }
 }

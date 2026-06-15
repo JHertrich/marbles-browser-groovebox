@@ -102,7 +102,7 @@ export const DEFAULT_STATE: AppState = {
   },
   laneD: {
     t:    { rate: 3, jitter: 0.2, gate: 0.5, bias: 0.5, dejaVu: 0.3, length: 16 },
-    grain: { position: 0.05, size: 0.4, density: 0.4, pitch: 0.5, spray: 0.3, detune: 0.1, width: 0.5, level: 0.7 },
+    grain: { position: 0.05, size: 0.4, density: 0.4, pitch: 0.5, spray: 0.3, detune: 0.1, width: 0.5, level: 0.7, wander: 0, continuousMode: false },
     granEnabled: true,
     granRecording: true,
   },
