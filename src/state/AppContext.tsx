@@ -72,7 +72,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { delay } = state.laneC
     if (delay.bpmSync) {
       audioEngine.setDelayTimeFromBpm(state.bpm, delay.syncDiv)
-      audioEngine.setDelayParams(0 /* ignored */, delay.feedback, delay.tone, delay.returnLevel)
+      audioEngine.setDelayParams(null, delay.feedback, delay.tone, delay.returnLevel)
     } else {
       audioEngine.setDelayParams(delay.time, delay.feedback, delay.tone, delay.returnLevel)
     }

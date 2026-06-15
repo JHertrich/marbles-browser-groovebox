@@ -475,10 +475,11 @@ class AudioEngine {
 
   // ─── Lane C: Effects ──────────────────────────────────────────────────────
 
-  setDelayParams(time: number, feedback: number, tone: number, returnLevel: number): void {
+  // time = null skips the delay time ramp (used when BPM sync manages it separately)
+  setDelayParams(time: number | null, feedback: number, tone: number, returnLevel: number): void {
     if (!this.ctx || !this.delayNode || !this.delayFilter || !this.delayFeedback || !this.delayReturn) return
     const t = this.ctx.currentTime + 0.016
-    this.delayNode.delayTime.linearRampToValueAtTime(Math.min(time, 1.999), t)
+    if (time !== null) this.delayNode.delayTime.linearRampToValueAtTime(Math.min(time, 1.999), t)
     // Hard cap at 0.85 — prevents runaway self-oscillation
     this.delayFeedback.gain.linearRampToValueAtTime(Math.min(feedback, 0.85), t)
     this.delayFilter.frequency.linearRampToValueAtTime(toneToHz(tone), t)
