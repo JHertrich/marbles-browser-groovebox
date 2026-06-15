@@ -76,7 +76,13 @@ export function LaneBSection() {
         {/* Kick */}
         <div className="dv">
           <div className="dv-header">
-            <span className="dv-name" style={{ color: A }}>● Kick</span>
+            <button
+              className={`voice-toggle${kick.enabled ? ' voice-toggle-on' : ''}`}
+              style={{ '--vc': A } as React.CSSProperties}
+              onClick={() => dispatch({ type: 'TOGGLE_KICK_ENABLED' })}
+              title={kick.enabled ? 'Mute kick' : 'Unmute kick'}
+            />
+            <span className="dv-name" style={{ color: A, opacity: kick.enabled ? 1 : 0.4 }}>● Kick</span>
             <span className="dv-prob">Bias {Math.round(kick.bias * 100)}%</span>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_KICK' })}>⚄</button>
           </div>
@@ -103,7 +109,13 @@ export function LaneBSection() {
         {/* Snare */}
         <div className="dv">
           <div className="dv-header">
-            <span className="dv-name" style={{ color: B }}>— Snare</span>
+            <button
+              className={`voice-toggle${snare.enabled ? ' voice-toggle-on' : ''}`}
+              style={{ '--vc': B } as React.CSSProperties}
+              onClick={() => dispatch({ type: 'TOGGLE_SNARE_ENABLED' })}
+              title={snare.enabled ? 'Mute snare' : 'Unmute snare'}
+            />
+            <span className="dv-name" style={{ color: B, opacity: snare.enabled ? 1 : 0.4 }}>— Snare</span>
             <span className="dv-prob">Bias {Math.round(snare.bias * 100)}%</span>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_SNARE' })}>⚄</button>
           </div>
@@ -130,7 +142,13 @@ export function LaneBSection() {
         {/* Hi-Hat */}
         <div className="dv">
           <div className="dv-header">
-            <span className="dv-name" style={{ color: HAT }}>∿ Hi-Hat</span>
+            <button
+              className={`voice-toggle${hat.enabled ? ' voice-toggle-on' : ''}`}
+              style={{ '--vc': HAT } as React.CSSProperties}
+              onClick={() => dispatch({ type: 'TOGGLE_HAT_ENABLED' })}
+              title={hat.enabled ? 'Mute hi-hat' : 'Unmute hi-hat'}
+            />
+            <span className="dv-name" style={{ color: HAT, opacity: hat.enabled ? 1 : 0.4 }}>∿ Hi-Hat</span>
             <span className="dv-prob">Bias {Math.round(hat.bias * 100)}%</span>
             <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_HAT' })}>⚄</button>
           </div>

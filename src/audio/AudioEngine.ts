@@ -27,6 +27,10 @@ class AudioEngine {
   private hatVoice: WoscNode | null = null
 
   private masterGain: GainNode | null = null
+  private synthMuteGain: GainNode | null = null
+  private kickMuteGain: GainNode | null = null
+  private snareMuteGain: GainNode | null = null
+  private hatMuteGain: GainNode | null = null
   private synthAnalyser: AnalyserNode | null = null
   private kickAnalyser: AnalyserNode | null = null
   private snareAnalyser: AnalyserNode | null = null
@@ -116,9 +120,10 @@ class AudioEngine {
 
     // ── Voices ──────────────────────────────────────────────────────────────
 
-    // Synth: voice → analyser → master (dry)
-    //              → synthDelaySend → delayInput
-    //              → synthReverbSend → reverbPreDelay
+    // Synth: voice → muteGain → analyser → master (dry)
+    //                           analyser → synthDelaySend → delayInput
+    //                           analyser → synthReverbSend → reverbPreDelay
+    this.synthMuteGain = this.ctx.createGain(); this.synthMuteGain.gain.value = 1
     this.synthAnalyser = this.ctx.createAnalyser()
     this.synthAnalyser.fftSize = 2048
     this.synthAnalyser.connect(this.masterGain)
@@ -132,10 +137,12 @@ class AudioEngine {
     this.synthVoice.engine = 2
     this.synthVoice.modTriggerPatched = 1
     this.synthVoice.volume = 0.8
-    this.synthVoice.connect(this.synthAnalyser)
+    this.synthVoice.connect(this.synthMuteGain)
+    this.synthMuteGain.connect(this.synthAnalyser)
     this.synthVoice.start()
 
     // Kick
+    this.kickMuteGain = this.ctx.createGain(); this.kickMuteGain.gain.value = 1
     this.kickAnalyser = this.ctx.createAnalyser()
     this.kickAnalyser.fftSize = 256
     this.kickAnalyser.connect(this.masterGain)
@@ -149,10 +156,12 @@ class AudioEngine {
     this.kickVoice.engine = 13
     this.kickVoice.modTriggerPatched = 1
     this.kickVoice.volume = 0.9
-    this.kickVoice.connect(this.kickAnalyser)
+    this.kickVoice.connect(this.kickMuteGain)
+    this.kickMuteGain.connect(this.kickAnalyser)
     this.kickVoice.start()
 
     // Snare
+    this.snareMuteGain = this.ctx.createGain(); this.snareMuteGain.gain.value = 1
     this.snareAnalyser = this.ctx.createAnalyser()
     this.snareAnalyser.fftSize = 256
     this.snareAnalyser.connect(this.masterGain)
@@ -166,10 +175,12 @@ class AudioEngine {
     this.snareVoice.engine = 14
     this.snareVoice.modTriggerPatched = 1
     this.snareVoice.volume = 0.8
-    this.snareVoice.connect(this.snareAnalyser)
+    this.snareVoice.connect(this.snareMuteGain)
+    this.snareMuteGain.connect(this.snareAnalyser)
     this.snareVoice.start()
 
     // Hat
+    this.hatMuteGain = this.ctx.createGain(); this.hatMuteGain.gain.value = 1
     this.hatAnalyser = this.ctx.createAnalyser()
     this.hatAnalyser.fftSize = 256
     this.hatAnalyser.connect(this.masterGain)
@@ -183,7 +194,8 @@ class AudioEngine {
     this.hatVoice.engine = 15
     this.hatVoice.modTriggerPatched = 1
     this.hatVoice.volume = 0.6
-    this.hatVoice.connect(this.hatAnalyser)
+    this.hatVoice.connect(this.hatMuteGain)
+    this.hatMuteGain.connect(this.hatAnalyser)
     this.hatVoice.start()
 
     this._initialized = true
@@ -262,9 +274,9 @@ class AudioEngine {
   triggerSnare(params: SnareParams, when = 0): void {
     if (!this.snareVoice || !this.ctx) return
     const t = this.ctx.currentTime + when + 0.016
-    // Engine 14: timbre = snap/attack character; morph = body resonance (decay-like, not snap)
-    this.snareVoice.timbreAudioParameter.linearRampToValueAtTime(params.snap, t)
-    this.snareVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.tone, t)
+    // Engine 14: harmonics = noise burst (snap/crack), timbre = body colour (tone)
+    this.snareVoice.harmonicsAudioParameter.linearRampToValueAtTime(params.snap, t)
+    this.snareVoice.timbreAudioParameter.linearRampToValueAtTime(params.tone, t)
     this.snareVoice.decayAudioParameter.linearRampToValueAtTime(params.decay, t)
     this.fireTrigger(this.snareVoice, when)
   }
@@ -315,6 +327,18 @@ class AudioEngine {
     }
     const node = map[voice][effect]
     if (node) node.gain.linearRampToValueAtTime(level, this.ctx.currentTime + 0.016)
+  }
+
+  setVoiceEnabled(voice: 'synth' | 'kick' | 'snare' | 'hat', enabled: boolean): void {
+    if (!this.ctx) return
+    const map = {
+      synth: this.synthMuteGain,
+      kick:  this.kickMuteGain,
+      snare: this.snareMuteGain,
+      hat:   this.hatMuteGain,
+    }
+    const gain = map[voice]
+    if (gain) gain.gain.linearRampToValueAtTime(enabled ? 1 : 0, this.ctx.currentTime + 0.016)
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

@@ -159,5 +159,23 @@ input[type="range"] {
 .btn-voice-rnd { background: transparent; border: 0.5px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; padding: 2px 7px; cursor: pointer; margin-left: auto; }
 .btn-voice-rnd:hover { border-color: var(--border-hover); color: var(--text-secondary); }
 
+/* Voice enable/mute LED toggle */
+.voice-toggle {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.1s, box-shadow 0.1s, border-color 0.1s;
+}
+.voice-toggle.voice-toggle-on {
+  background: var(--vc, var(--accent-a));
+  border-color: var(--vc, var(--accent-a));
+  box-shadow: 0 0 5px var(--vc, var(--accent-a));
+}
+.voice-toggle:hover { border-color: var(--text-secondary); }
+
 /* === FOOTER === */
 .footer { display: flex; justify-content: flex-end; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--border); }

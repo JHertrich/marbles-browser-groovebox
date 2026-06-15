@@ -23,6 +23,7 @@ and three Plaits drum voices driven by a probabilistic rhythm generator.
 - **Lane A — Synth**: Marbles-inspired generative pitch sequencer (TypeScript) driving a Plaits WASM synthesizer voice
 - **Lane B — Drums**: Marbles-inspired probabilistic rhythm generator driving three Plaits drum voices (Kick, Snare, Hi-Hat)
 - **Effects**: Send-based delay (BPM-sync or free, feedback-capped, tone-filtered) and convolution reverb with algorithmically generated impulse response; per-voice Dly/Rvb send knobs inline on each voice card; global Delay and Reverb controls in a compact strip
+- **Voice mute toggles**: LED-style enable/bypass button on each voice (Synth, Kick, Snare, Hi-Hat); mutes audio + effects sends without stopping the pattern
 - **Shared master clock**: `AudioContext.currentTime`-based lookahead scheduler (100 ms window, 25 ms interval)
 - **Generative sequencing**: Independent t (timing) and x (pitch) generators with `deja_vu` loop control
 - **Randomize system** — granular ⚄ buttons at every level:
@@ -182,7 +183,7 @@ src/
 - [x] **Phase 3** — Marbles sequencer: logistic map, t-generator, x-generator, Lane A wired end-to-end
 - [x] **Phase 4** — Lane B drums: second Marbles instance, 3 independent trigger streams
 - [x] **Phase 5** — Full UI: SVG Knob component, Transport bar, LaneA/LaneB panels, oscilloscope, peak meters, reactive step grids, scale/mode selectors, preset save/load via localStorage, useReducer + Context state management
-- [x] **Phase 6** — Effects (delay + reverb send buses, per-voice send knobs, compact FxSection); granular ⚄ randomize at every level (per-section, per-voice, global); snare snap mapping fix; delay feedback anti-oscillation (Q=0.5, 400–6kHz tone range, 0.85 cap)
+- [x] **Phase 6** — Effects (delay + reverb send buses, per-voice send knobs, compact FxSection); granular ⚄ randomize at every level (per-section, per-voice, global); snare parameter fix (harmonics=snap, timbre=tone); delay feedback anti-oscillation (Q=0.5, 400–6kHz tone range, 0.85 cap); per-voice LED mute toggles
 - [ ] **Phase 7** — Polish: parameter smoothing, Electron/Tauri wrapper
 
 ---

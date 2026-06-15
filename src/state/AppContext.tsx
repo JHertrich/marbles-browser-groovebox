@@ -76,6 +76,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     audioEngine.setReverbParams(reverb.size, reverb.decay, reverb.tone, reverb.preDelay, reverb.returnLevel)
   }, [state.laneC.reverb, audioReady])
 
+  // Sync voice enabled state (mute gains)
+  useEffect(() => {
+    if (!audioReady) return
+    audioEngine.setVoiceEnabled('synth', state.laneA.synthEnabled)
+  }, [state.laneA.synthEnabled, audioReady])
+
+  useEffect(() => {
+    if (!audioReady) return
+    audioEngine.setVoiceEnabled('kick',  state.laneB.kick.enabled)
+    audioEngine.setVoiceEnabled('snare', state.laneB.snare.enabled)
+    audioEngine.setVoiceEnabled('hat',   state.laneB.hat.enabled)
+  }, [state.laneB.kick.enabled, state.laneB.snare.enabled, state.laneB.hat.enabled, audioReady])
+
   // Sync Lane C send levels
   useEffect(() => {
     if (!audioReady) return

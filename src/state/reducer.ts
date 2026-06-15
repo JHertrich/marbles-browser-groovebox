@@ -25,6 +25,10 @@ export type Action =
   | { type: 'RANDOMIZE_LANE_B_RHYTHM' }
   | { type: 'RANDOMIZE_DELAY' }
   | { type: 'RANDOMIZE_REVERB' }
+  | { type: 'TOGGLE_SYNTH_ENABLED' }
+  | { type: 'TOGGLE_KICK_ENABLED' }
+  | { type: 'TOGGLE_SNARE_ENABLED' }
+  | { type: 'TOGGLE_HAT_ENABLED' }
   | { type: 'RESET' }
   | { type: 'LOAD_PRESET';          state: AppState }
 
@@ -249,6 +253,14 @@ export function reducer(state: AppState, action: Action): AppState {
           },
         },
       }
+    case 'TOGGLE_SYNTH_ENABLED':
+      return { ...state, laneA: { ...state.laneA, synthEnabled: !state.laneA.synthEnabled } }
+    case 'TOGGLE_KICK_ENABLED':
+      return { ...state, laneB: { ...state.laneB, kick: { ...state.laneB.kick, enabled: !state.laneB.kick.enabled } } }
+    case 'TOGGLE_SNARE_ENABLED':
+      return { ...state, laneB: { ...state.laneB, snare: { ...state.laneB.snare, enabled: !state.laneB.snare.enabled } } }
+    case 'TOGGLE_HAT_ENABLED':
+      return { ...state, laneB: { ...state.laneB, hat: { ...state.laneB.hat, enabled: !state.laneB.hat.enabled } } }
     case 'RESET':
       return { ...DEFAULT_STATE, isPlaying: state.isPlaying }
     case 'LOAD_PRESET':

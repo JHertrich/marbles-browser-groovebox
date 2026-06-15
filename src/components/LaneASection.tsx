@@ -27,7 +27,7 @@ function DejaVuBar({ value, color, label }: { value: number; color: string; labe
 
 export function LaneASection() {
   const { state, dispatch } = useApp()
-  const { t, x, synth } = state.laneA
+  const { t, x, synth, synthEnabled } = state.laneA
   const synthSends = state.laneC.sends.synth
 
   // Stable subscription for StepGrid
@@ -144,7 +144,13 @@ export function LaneASection() {
       {/* ── Plaits engine ── */}
       <div className="section">
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
-          <span className="section-title" style={{ marginBottom: 0 }}>Plaits (WASM) — synthesis engine</span>
+          <button
+            className={`voice-toggle${synthEnabled ? ' voice-toggle-on' : ''}`}
+            style={{ '--vc': A, marginRight: 8 } as React.CSSProperties}
+            onClick={() => dispatch({ type: 'TOGGLE_SYNTH_ENABLED' })}
+            title={synthEnabled ? 'Mute synth' : 'Unmute synth'}
+          />
+          <span className="section-title" style={{ marginBottom: 0, opacity: synthEnabled ? 1 : 0.4 }}>Plaits (WASM) — synthesis engine</span>
           <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_SYNTH' })}>⚄</button>
         </div>
         <div className="mode-tabs">
