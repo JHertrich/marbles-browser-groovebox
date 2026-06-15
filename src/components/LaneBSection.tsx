@@ -127,8 +127,6 @@ export function LaneBSection() {
               defaultValue={0.2} size={28} color={HAT} label="Open" valueLabel={fmt(hat.open)} />
             <Knob value={hat.tone} onChange={v => dispatch({ type: 'PATCH_HAT', patch: { tone: v } })}
               defaultValue={0.7} size={28} color={HAT} label="Tone" valueLabel={fmt(hat.tone)} />
-            <Knob value={hat.dejaVu} onChange={v => dispatch({ type: 'PATCH_HAT', patch: { dejaVu: v } })}
-              defaultValue={0} size={28} color={HAT} label="Deja vu" valueLabel={fmt(hat.dejaVu)} />
           </div>
           <DejaVuBar value={hat.dejaVu} color={HAT} label="Deja vu" />
           <PeakMeter analyser={audioEngine.hatAnalyserNode} color={HAT} />
