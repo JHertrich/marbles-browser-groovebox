@@ -1,4 +1,4 @@
-import type { AppState, LaneAState, LaneBState, LaneCState, LaneDState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams, GranularParams, LFOState, ModDest } from './types'
+import type { AppState, LaneAState, LaneBState, LaneCState, LaneDState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams, GranularParams, LFOState, LFOWaveform, LFOSyncDiv, ModDest } from './types'
 import { DEFAULT_STATE } from './types'
 import { SCALE_MODE_NAMES, ROOT_NOTES } from '../sequencer/scales'
 
@@ -40,6 +40,7 @@ export type Action =
   | { type: 'PATCH_LFO';            index: 0|1|2|3; patch: Partial<LFOState> }
   | { type: 'SET_MOD_SLOT';         lfoIndex: 0|1|2|3; dest: ModDest; amount: number }
   | { type: 'REMOVE_MOD_SLOT';      lfoIndex: 0|1|2|3; dest: ModDest }
+  | { type: 'RANDOMIZE_MOD' }
 
 const rnd = Math.random
 const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(rnd() * arr.length)]
@@ -333,6 +334,38 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...DEFAULT_STATE, isPlaying: state.isPlaying }
     case 'LOAD_PRESET':
       return action.state
+    case 'RANDOMIZE_MOD': {
+      const WAVEFORMS: LFOWaveform[] = ['sine', 'triangle', 'square', 'sample-hold']
+      const SYNC_DIVS: LFOSyncDiv[] = ['4/1', '2/1', '1/1', '1/2', '1/4', '1/8', '1/16']
+      const ALL_DESTS: ModDest[] = [
+        'synth.timbre', 'synth.morph', 'synth.harmonics', 'synth.decay', 'synth.level',
+        'laneA.jitter', 'laneA.bias',
+        'laneB.density', 'laneB.jitter',
+        'kick.decay', 'kick.snap',
+        'snare.snap', 'snare.tone', 'snare.body', 'snare.decay',
+        'hat.open', 'hat.tone',
+        'gran.position', 'gran.size', 'gran.density', 'gran.pitch',
+        'gran.spray', 'gran.detune', 'gran.wander', 'gran.level',
+        'laneD.jitter', 'laneD.bias',
+        'delay.feedback', 'delay.time',
+        'reverb.size', 'reverb.decay', 'reverb.level',
+      ]
+      const lfos = state.mod.lfos.map(() => ({
+        waveform: pick(WAVEFORMS),
+        rate: rnd(),
+        synced: rnd() > 0.65,
+        syncDiv: pick(SYNC_DIVS),
+        depth: 0.25 + rnd() * 0.75,
+      })) as typeof state.mod.lfos
+      const slotCount = 4 + Math.floor(rnd() * 5)
+      const shuffled = [...ALL_DESTS].sort(() => rnd() - 0.5).slice(0, slotCount)
+      const slots = shuffled.map(dest => ({
+        lfoIndex: Math.floor(rnd() * 4) as 0|1|2|3,
+        dest,
+        amount: (rnd() > 0.5 ? 1 : -1) * (0.3 + rnd() * 0.7),
+      }))
+      return { ...state, mod: { lfos, slots } }
+    }
     case 'PATCH_LFO': {
       const lfos = [...state.mod.lfos] as typeof state.mod.lfos
       lfos[action.index] = { ...lfos[action.index], ...action.patch }

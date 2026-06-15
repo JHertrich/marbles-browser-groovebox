@@ -90,10 +90,18 @@ const DEST_GROUPS: { label: string; dests: [ModDest, string][] }[] = [
     ],
   },
   {
-    label: 'FX',
+    label: 'FX — Delay',
     dests: [
-      ['delay.feedback', 'Dly.Fbk'],
-      ['delay.time',     'Dly.Time'],
+      ['delay.feedback', 'Feedback'],
+      ['delay.time',     'Time'],
+    ],
+  },
+  {
+    label: 'FX — Reverb',
+    dests: [
+      ['reverb.size',  'Size'],
+      ['reverb.decay', 'Decay'],
+      ['reverb.level', 'Level'],
     ],
   },
 ]
@@ -240,6 +248,7 @@ function MatrixCell({ lfoIndex, dest }: { lfoIndex: number; dest: ModDest }) {
 
 // ─── Full modulation section ──────────────────────────────────────────────────
 export function ModSection() {
+  const { dispatch } = useApp()
   const [open, setOpen] = useState(false)
 
   return (
@@ -247,7 +256,12 @@ export function ModSection() {
       <div className="lane-header" style={{ cursor: 'pointer' }} onClick={() => setOpen(o => !o)}>
         <span className="lane-tag tag-mod">MOD</span>
         <span className="lane-name">LFO Modulation Matrix</span>
-        <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--text-muted)' }}>
+        <button
+          className="btn-voice-rnd"
+          title="Randomize all LFOs and mod routing"
+          onClick={e => { e.stopPropagation(); dispatch({ type: 'RANDOMIZE_MOD' }) }}
+        >⚄</button>
+        <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-muted)' }}>
           {open ? '▲ collapse' : '▼ expand'}
         </span>
       </div>

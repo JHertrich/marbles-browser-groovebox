@@ -113,3 +113,4 @@ export type ModDest =
   | 'gran.spray' | 'gran.detune' | 'gran.wander' | 'gran.level'
   | 'laneD.jitter' | 'laneD.bias'
   | 'delay.feedback' | 'delay.time'
+  | 'reverb.size' | 'reverb.decay' | 'reverb.level'

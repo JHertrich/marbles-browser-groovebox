@@ -209,6 +209,11 @@ class AudioEngine {
 
   private _initialized = false
 
+  // Throttle state for LFO-driven reverb IR regeneration
+  private modIRSize  = 0.6
+  private modIRDecay = 0.5
+  private lastIRTime = 0
+
   get isInitialized() { return this._initialized }
   get audioContext() { return this.ctx }
   get synthAnalyserNode() { return this.synthAnalyser }
@@ -578,8 +583,25 @@ class AudioEngine {
       case 'gran.level':      this.granularNode?.parameters.get('level')?.setValueAtTime(cv, t); break
       case 'delay.feedback':  this.delayFeedback?.gain.setValueAtTime(Math.min(cv * 0.85, 0.85), t); break
       case 'delay.time':      this.delayNode?.delayTime.setValueAtTime(cv * 1.999, t); break
+      case 'reverb.level':    this.reverbReturn?.gain.setValueAtTime(cv, t); break
+      case 'reverb.size':
+        this.modIRSize = cv
+        this.maybeRegenerateIR(t)
+        break
+      case 'reverb.decay':
+        this.modIRDecay = cv
+        this.maybeRegenerateIR(t)
+        break
       // JS-param dests (laneA/B/D jitter/bias, drum params) handled in LFOEngine
     }
+  }
+
+  // Regenerate reverb IR at most every 500 ms to avoid CPU spikes from rapid LFO changes.
+  private maybeRegenerateIR(now: number): void {
+    if (!this.ctx || !this.reverbConvolver) return
+    if (now - this.lastIRTime < 0.5) return
+    this.reverbConvolver.buffer = this.generateIR(this.ctx, this.modIRSize, this.modIRDecay)
+    this.lastIRTime = now
   }
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

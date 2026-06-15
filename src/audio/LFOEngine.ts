@@ -104,6 +104,7 @@ class LFOEngine {
       'gran.position', 'gran.size', 'gran.density', 'gran.pitch',
       'gran.spray', 'gran.detune', 'gran.wander', 'gran.level',
       'delay.feedback', 'delay.time',
+      'reverb.size', 'reverb.decay', 'reverb.level',
     ]
     if (audioParamDests.includes(dest)) {
       const base = this.baseValue(dest, state)
@@ -161,6 +162,9 @@ class LFOEngine {
       case 'gran.level':      return state.laneD.grain.level
       case 'delay.feedback':  return state.laneC.delay.feedback / 0.85  // normalize to 0-1
       case 'delay.time':      return state.laneC.delay.time / 2.0       // 0-2s → 0-1
+      case 'reverb.size':     return state.laneC.reverb.size
+      case 'reverb.decay':    return state.laneC.reverb.decay
+      case 'reverb.level':    return state.laneC.reverb.returnLevel
       default:                return 0
     }
   }
