@@ -1,5 +1,6 @@
-import type { AppState, LaneAState, LaneBState, LaneCState, DelayState, ReverbState, SendLevels, TParams, XParams, SynthParams } from './types'
+import type { AppState, LaneAState, LaneBState, LaneCState, DelayState, ReverbState, SendLevels, SyncDiv, TParams, XParams, SynthParams } from './types'
 import { DEFAULT_STATE } from './types'
+import { SCALE_MODE_NAMES, ROOT_NOTES } from '../sequencer/scales'
 
 export type Action =
   | { type: 'SET_BPM';              value: number }
@@ -19,18 +20,42 @@ export type Action =
   | { type: 'RANDOMIZE_KICK' }
   | { type: 'RANDOMIZE_SNARE' }
   | { type: 'RANDOMIZE_HAT' }
+  | { type: 'RANDOMIZE_DELAY' }
+  | { type: 'RANDOMIZE_REVERB' }
   | { type: 'RESET' }
   | { type: 'LOAD_PRESET';          state: AppState }
+
+const rnd = Math.random
+const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(rnd() * arr.length)]
+
+const SYNC_DIVS: SyncDiv[] = ['1/8', '3/16', '1/4', '3/8', '1/2']
 
 function randA(laneA: LaneAState): LaneAState {
   return {
     ...laneA,
-    t: { ...laneA.t, bias: Math.random(), jitter: Math.random() * 0.5, dejaVu: Math.random() * 0.8 },
-    x: { ...laneA.x, spread: 0.2 + Math.random() * 0.8, bias: Math.random(), dejaVu: Math.random() * 0.8 },
+    t: {
+      ...laneA.t,
+      rate: Math.ceil(rnd() * 8),
+      jitter: rnd() * 0.6,
+      gate: 0.2 + rnd() * 0.7,
+      bias: 0.3 + rnd() * 0.7,
+      dejaVu: rnd() * 0.8,
+      length: 4 + Math.floor(rnd() * 29),
+    },
+    x: {
+      ...laneA.x,
+      spread: 0.2 + rnd() * 0.8,
+      bias: rnd(),
+      steps: 1 + Math.floor(rnd() * 8),
+      dejaVu: rnd() * 0.8,
+      length: 4 + Math.floor(rnd() * 29),
+      root: pick(ROOT_NOTES),
+      mode: pick(SCALE_MODE_NAMES),
+    },
     synth: {
       ...laneA.synth,
-      timbre: Math.random(), morph: Math.random(), harmonics: Math.random(),
-      decay: 0.2 + Math.random() * 0.8, level: 0.4 + Math.random() * 0.6,
+      timbre: rnd(), morph: rnd(), harmonics: rnd(),
+      decay: 0.2 + rnd() * 0.8, level: 0.4 + rnd() * 0.6,
     },
   }
 }
@@ -123,7 +148,37 @@ export function reducer(state: AppState, action: Action): AppState {
         ...state,
         laneB: {
           ...state.laneB,
-          hat: { ...state.laneB.hat, open: Math.random(), tone: Math.random() },
+          hat: { ...state.laneB.hat, open: rnd(), tone: rnd() },
+        },
+      }
+    case 'RANDOMIZE_DELAY':
+      return {
+        ...state,
+        laneC: {
+          ...state.laneC,
+          delay: {
+            ...state.laneC.delay,
+            feedback: rnd() * 0.85,
+            tone: rnd(),
+            returnLevel: 0.3 + rnd() * 0.6,
+            bpmSync: rnd() > 0.25,
+            syncDiv: pick(SYNC_DIVS),
+            time: rnd() * 1.5,
+          },
+        },
+      }
+    case 'RANDOMIZE_REVERB':
+      return {
+        ...state,
+        laneC: {
+          ...state.laneC,
+          reverb: {
+            size: 0.2 + rnd() * 0.8,
+            decay: rnd(),
+            tone: 0.3 + rnd() * 0.7,
+            preDelay: rnd() * 0.08,
+            returnLevel: 0.3 + rnd() * 0.6,
+          },
         },
       }
     case 'RESET':

@@ -15,7 +15,10 @@ export function FxSection() {
     <div className="two-col" style={{ marginBottom: 12 }}>
       {/* Delay */}
       <div className="section">
-        <div className="section-title">Delay — global</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+          <span className="section-title" style={{ marginBottom: 0 }}>Delay — global</span>
+          <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_DELAY' })}>⚄</button>
+        </div>
         <div className="chip-row" style={{ marginBottom: 8 }}>
           <span
             className={`chip${delay.bpmSync ? ' chip-sel-c' : ''}`}
@@ -51,7 +54,10 @@ export function FxSection() {
 
       {/* Reverb */}
       <div className="section">
-        <div className="section-title">Reverb — global</div>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+          <span className="section-title" style={{ marginBottom: 0 }}>Reverb — global</span>
+          <button className="btn-voice-rnd" onClick={() => dispatch({ type: 'RANDOMIZE_REVERB' })}>⚄</button>
+        </div>
         <div className="knob-row">
           <Knob value={reverb.size}
             onChange={v => dispatch({ type: 'PATCH_LANE_C_REVERB', patch: { size: v } })}
