@@ -16,7 +16,7 @@ const MAX_GRAINS = 32
 class GranularProcessor extends AudioWorkletProcessor {
   static get parameterDescriptors() {
     return [
-      { name: 'position', defaultValue: 0.2, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'position', defaultValue: 0.05, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
       { name: 'size',     defaultValue: 0.4, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
       { name: 'density',  defaultValue: 0.4, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
       { name: 'pitch',    defaultValue: 0.5, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
@@ -253,7 +253,8 @@ class AudioEngine {
     this.synthMuteGain.connect(this.synthAnalyser)
     this.synthVoice.start()
 
-    // Granular sampler taps synthVoice directly (bypasses mute so buffer keeps filling)
+    // Granular sampler: tap from synthAnalyser (native AudioNode, reliable fan-out)
+    // synthVoice is a WoscNode wrapper whose connect() may not route to AudioWorkletNode inputs
     this.granularNode = new AudioWorkletNode(this.ctx, 'granular-processor', {
       numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2],
     })
@@ -266,7 +267,7 @@ class AudioEngine {
     this.granAnalyser.connect(this.granDelaySend);  this.granDelaySend.connect(this.delayInput)
     this.granAnalyser.connect(this.granReverbSend); this.granReverbSend.connect(this.reverbPreDelay)
 
-    this.synthVoice.connect(this.granularNode)
+    this.synthAnalyser.connect(this.granularNode)   // ← native node → reliable
     this.granularNode.connect(this.granMuteGain)
     this.granMuteGain.connect(this.granAnalyser)
 

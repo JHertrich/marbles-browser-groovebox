@@ -4,9 +4,10 @@ interface OscilloscopeProps {
   analyser: AnalyserNode | null
   color?: string
   height?: number
+  label?: string
 }
 
-export function Oscilloscope({ analyser, color = '#7f77dd', height = 40 }: OscilloscopeProps) {
+export function Oscilloscope({ analyser, color = '#7f77dd', height = 40, label = 'Oscilloscope' }: OscilloscopeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef<number>(0)
 
@@ -43,7 +44,7 @@ export function Oscilloscope({ analyser, color = '#7f77dd', height = 40 }: Oscil
 
   return (
     <div className="oscilloscope" style={{ height }}>
-      <span className="osc-label">Oscilloscope</span>
+      <span className="osc-label">{label}</span>
       <canvas
         ref={canvasRef}
         width={600}

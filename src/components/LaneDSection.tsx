@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useApp } from '../state/AppContext'
 import { Knob } from './Knob'
+import { Oscilloscope } from './Oscilloscope'
 import { StepGrid } from './StepGrid'
 import { PeakMeter } from './PeakMeter'
 import { audioEngine } from '../audio/AudioEngine'
@@ -100,7 +101,7 @@ export function LaneDSection() {
           <div className="knob-row" style={{ flexWrap: 'wrap' }}>
             <Knob value={grain.position}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { position: v } })}
-              defaultValue={0.2} color={D} label="Pos" valueLabel={fmt(grain.position)} />
+              defaultValue={0.05} color={D} label="Pos" valueLabel={fmt(grain.position)} />
             <Knob value={grain.size}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { size: v } })}
               defaultValue={0.4} color={D} label="Size"
@@ -133,9 +134,18 @@ export function LaneDSection() {
           </div>
 
           <div className="section-sep" style={{ marginTop: 8 }} />
-          <div className="section-title" style={{ marginBottom: 4 }}>
-            Samples live synth output — start Lane A first to fill the buffer
+
+          {/* Capture input view — shows what's entering the granular buffer */}
+          <div style={{ opacity: granRecording ? 1 : 0.35, transition: 'opacity 0.3s' }}>
+            <Oscilloscope
+              analyser={audioEngine.synthAnalyserNode}
+              color={granRecording ? D : 'var(--text-muted)'}
+              height={32}
+              label={granRecording ? '● Capture input' : '■ Buffer frozen'}
+            />
           </div>
+
+          {/* Granular output level */}
           <PeakMeter analyser={audioEngine.granAnalyserNode} color={D} />
         </div>
       </div>
