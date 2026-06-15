@@ -41,6 +41,10 @@ export type Action =
 const rnd = Math.random
 const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(rnd() * arr.length)]
 
+// Musical interval set for granular pitch randomization (semitones from unison).
+const GRAN_PITCH_ST = [-24, -12, -7, -5, -4, -3, 0, 3, 4, 5, 7, 12, 24] as const
+const randGranPitch = (): number => 0.5 + pick(GRAN_PITCH_ST) / 48
+
 const SYNC_DIVS: SyncDiv[] = ['1/8', '3/16', '1/4', '3/8', '1/2']
 
 function randA(laneA: LaneAState): LaneAState {
@@ -98,7 +102,7 @@ function randD(laneD: LaneDState): LaneDState {
       position: rnd() * 0.5,
       size: 0.1 + rnd() * 0.9,
       density: rnd(),
-      pitch: 0.2 + rnd() * 0.6,
+      pitch: randGranPitch(),
       spray: rnd() * 0.7,
       detune: rnd() * 0.5,
       width: rnd(),

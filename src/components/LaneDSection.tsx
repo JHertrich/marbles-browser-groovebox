@@ -11,6 +11,24 @@ const D   = 'var(--accent-d)'
 const C   = 'var(--accent-c)'
 const fmt = (v: number, d = 2) => v.toFixed(d)
 
+// Musical intervals available for grain pitch (semitones from unison).
+// The worklet formula Math.pow(2, (pit-0.5)*4) produces exact frequency ratios
+// for these positions, so intervals like a P5 (7 st) land on exactly 3:2.
+const PITCH_ST  = [-24, -12, -7, -5, -4, -3, 0, 3, 4, 5, 7, 12, 24] as const
+const PITCH_LBL = ['-2oct','-Oct','-P5','-P4','-M3','-m3','P1','m3','M3','P4','P5','Oct','+2oct']
+
+function snapPitch(rawV: number): number {
+  const st = (rawV - 0.5) * 48
+  const closest = PITCH_ST.reduce((best, iv) => Math.abs(iv - st) < Math.abs(best - st) ? iv : best)
+  return 0.5 + closest / 48
+}
+
+function pitchLabel(param: number): string {
+  const st = Math.round((param - 0.5) * 48)
+  const idx = PITCH_ST.indexOf(st as typeof PITCH_ST[number])
+  return idx >= 0 ? PITCH_LBL[idx] : `${st > 0 ? '+' : ''}${st}st`
+}
+
 function DejaVuBar({ value, color, label }: { value: number; color: string; label: string }) {
   return (
     <div className="deja-row">
@@ -115,9 +133,9 @@ export function LaneDSection() {
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { density: v } })}
               defaultValue={0.4} color={D} label="Dens" valueLabel={`${Math.round(1 + grain.density * 11)}`} />
             <Knob value={grain.pitch}
-              onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { pitch: v } })}
+              onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { pitch: snapPitch(v) } })}
               defaultValue={0.5} color={D} label="Pitch"
-              valueLabel={grain.pitch === 0.5 ? '0' : `${((grain.pitch - 0.5) * 4 * 12).toFixed(0)}st`} />
+              valueLabel={pitchLabel(grain.pitch)} />
             <Knob value={grain.spray}
               onChange={v => dispatch({ type: 'PATCH_LANE_D_GRAIN', patch: { spray: v } })}
               defaultValue={0.3} color={D} label="Spray" valueLabel={fmt(grain.spray)} />
