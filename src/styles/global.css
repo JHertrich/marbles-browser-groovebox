@@ -94,6 +94,8 @@ input[type="range"] {
 .rec-dl-btn { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; padding: 5px 10px; border-radius: var(--radius-sm); cursor: pointer; border: 0.5px solid var(--border-hover); background: var(--bg-element); color: var(--text-secondary); white-space: nowrap; }
 .rec-dl-btn:hover:not(:disabled) { border-color: var(--accent-a); color: var(--accent-a-pale); }
 .rec-dl-btn:disabled { opacity: 0.5; cursor: default; }
+.rec-discard-btn { font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); cursor: pointer; border: 0.5px solid #553333; background: transparent; color: #885555; margin-left: 4px; }
+.rec-discard-btn:hover { border-color: #cc4444; color: #ff7777; background: #2a0e0e; }
 
 /* === LANE === */
 .lane { background: var(--bg-lane); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; }

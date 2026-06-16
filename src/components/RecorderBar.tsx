@@ -15,6 +15,7 @@ function getSupportedMimeType(): string {
 }
 
 function fmtTime(secs: number): string {
+  if (!isFinite(secs) || isNaN(secs)) return '--:--.--'
   const m = Math.floor(secs / 60)
   const s = (secs % 60).toFixed(1).padStart(4, '0')
   return `${m}:${s}`
@@ -153,10 +154,24 @@ export function RecorderBar() {
   }, [])
 
   const onLoadedMetadata = useCallback(() => {
-    if (audioRef.current) setDuration(audioRef.current.duration)
+    const el = audioRef.current
+    if (!el) return
+    // webm blobs from MediaRecorder often lack a duration header → audio.duration is Infinity
+    if (isFinite(el.duration) && el.duration > 0) setDuration(el.duration)
+    // else keep elapsedRef.current already set in onstop
   }, [])
 
   const onEnded = useCallback(() => setPlaying(false), [])
+
+  const discardTake = useCallback(() => {
+    audioRef.current?.pause()
+    setBlobUrl(null)
+    setRecState('idle')
+    setElapsed(0)
+    setDuration(0)
+    setPlayTime(0)
+    setPlaying(false)
+  }, [])
 
   if (!audioReady) return null
 
@@ -199,7 +214,7 @@ export function RecorderBar() {
               type="range"
               className="rec-seek"
               min={0}
-              max={duration || 1}
+              max={isFinite(duration) && duration > 0 ? duration : 1}
               step={0.01}
               value={playTime}
               onChange={handleSeek}
@@ -217,6 +232,14 @@ export function RecorderBar() {
             title="Download WAV"
           >
             {exporting ? '…' : '⬇ WAV'}
+          </button>
+
+          <button
+            className="rec-discard-btn"
+            onClick={discardTake}
+            title="Discard recording"
+          >
+            ✕
           </button>
         </>
       )}
