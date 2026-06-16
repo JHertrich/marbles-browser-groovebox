@@ -1,4 +1,5 @@
 import { Transport } from './components/Transport'
+import { RecorderBar } from './components/RecorderBar'
 import { LaneASection } from './components/LaneASection'
 import { LaneBSection } from './components/LaneBSection'
 import { LaneDSection } from './components/LaneDSection'
@@ -9,6 +10,7 @@ export default function App() {
   return (
     <div className="groovebox">
       <Transport />
+      <RecorderBar />
       <LaneASection />
       <LaneBSection />
       <LaneDSection />

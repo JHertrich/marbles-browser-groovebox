@@ -52,6 +52,7 @@ Three synchronized lanes — a 4-voice polyphonic Plaits synthesizer sequenced b
   - **Randomize**: two independent ⚄ buttons — one for LFO parameters only (waveform/rate/sync/depth), one for matrix routing only (source/destination/amount); each leaves the other half untouched
   - **Architecture**: `LFOEngine` ticks at 25 ms using `audioContext.currentTime` for drift-free phase; audio params applied via `setValueAtTime`; JS sequencer params (Marbles jitter/bias, density, drum timbre) written directly to sequencer objects between scheduler ticks
 - **Preset system**: Save/load all parameters as JSON via `localStorage`
+- **Performance recorder**: ● REC button captures the full mixed output via `MediaStreamAudioDestinationNode`; animated pulsing timer while recording; after stopping, an inline player strip appears with ▶/⏸ playback, a seek bar for scrubbing, and a ⬇ WAV button that decodes the recording and exports a 16-bit stereo PCM WAV file (no external libraries — manual header encoding)
 
 ---
 
@@ -248,7 +249,8 @@ src/
 - [x] **Phase 8** — Granular musical enhancement: TRIG/CONT mode toggle (continuous self-clocked grain stream at 1–16 grains/sec for drones); Wander knob (slow bounded position random walk, ~20 s full range at max); snare parameter mapping corrected (timbre=snappiness, harmonics=body+noise frequency, morph=body resonance); Body knob added to snare; pre-initialization of snare voice to avoid first-hit silence at param=0 defaults; granular Pitch snapped to 13 musical intervals (±2 oct in steps of unison/m3/M3/P4/P5/Oct) — worklet produces exact frequency ratios at semitone boundaries; randomize respects the same interval set
 - [x] **Phase 9** — LFO modulation matrix: 4 LFOs (sine/triangle/square/S&H) with free (0.05–10 Hz logarithmic) or BPM-synced rate ('4/1'–'1/16'); depth knob; animated bipolar gauge; 33 modulation destinations across all lanes and FX (including reverb size/decay/level — IR regeneration throttled to 500 ms); collapsible mod section with dashed-ring indicator on modulated knobs; two independent ⚄ buttons (LFO params only / matrix routing only); LFOEngine ticks at 25 ms via `setInterval`, using `audioContext.currentTime` for drift-free phase; audio params via `AudioEngine.applyModulation` (`setValueAtTime`); JS sequencer params (jitter, bias, density, drum timbre) written directly to `laneA/B/D.params` between scheduler ticks
 - [x] **Phase 10** — 4-voice polyphony for Lane A synth (round-robin WoscNode pool; continuous mode + per-voice GainNode envelopes, 10 ms attack, 150 ms–4.15 s decay); Euclidean rhythm generator for Lane B drums (Bjorklund/Bresenham, per-voice Fill/Variation/Rotation; default: four-on-floor kick, backbeat snare, straight-8ths hat); BPM-synced delay bug fix (double `linearRampToValueAtTime` race); granular ⚄ now only randomizes grain params (timing has its own button)
-- [ ] **Phase 11** — Polish: parameter smoothing, Electron/Tauri wrapper
+- [x] **Phase 11** — Performance recorder: `MediaStreamAudioDestinationNode` → `MediaRecorder` capture; inline playback strip with seek bar; WAV export via manual PCM16 encoding (no external libraries)
+- [ ] **Phase 12** — Polish: parameter smoothing, Electron/Tauri wrapper
 
 ---
 

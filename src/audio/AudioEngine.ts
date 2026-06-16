@@ -189,6 +189,9 @@ class AudioEngine {
   private snareReverbSend: GainNode | null = null
   private hatReverbSend: GainNode | null = null
 
+  // ── Recording output ────────────────────────────────────────────────────────
+  private recDest: MediaStreamAudioDestinationNode | null = null
+
   // ── Delay chain ─────────────────────────────────────────────────────────────
   private delayInput: GainNode | null = null
   private delayNode: DelayNode | null = null
@@ -242,6 +245,9 @@ class AudioEngine {
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = 0.8
     this.masterGain.connect(this.ctx.destination)
+
+    this.recDest = this.ctx.createMediaStreamDestination()
+    this.masterGain.connect(this.recDest)
 
     // ── Build delay chain ───────────────────────────────────────────────────
     this.delayInput    = this.ctx.createGain()
@@ -632,6 +638,8 @@ class AudioEngine {
     this.lastIRTime = now
   }
 
+  get recordingStream(): MediaStream | null { return this.recDest?.stream ?? null }
+
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   resume(): void { this.ctx?.resume() }
@@ -646,6 +654,7 @@ class AudioEngine {
     this.kickVoice?.dispose()
     this.snareVoice?.dispose()
     this.hatVoice?.dispose()
+    this.recDest = null
     wosc.teardown()
     this.ctx?.close()
     this.ctx = null
